@@ -1,10 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ============================================================================
 # ShadowOS AI Integration Setup
 # ============================================================================
-set -euo pipefail
+set -e
+set -u
 
 CYAN='\033[0;36m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+BLUE='\033[0;34m'
 step() { echo -e "\n${CYAN}═══ $1 ═══${NC}\n"; }
 success() { echo -e "  ${GREEN}✓${NC} $1"; }
 warn() { echo -e "  ${YELLOW}⚠${NC} $1"; }
@@ -45,14 +47,14 @@ fi
 # ─── Install AI Models ──────────────────────────────────────────────────
 step "DOWNLOADING AI MODELS"
 
-# Check if Ollama is running, start if not
-if ! pgrep -x ollama > /dev/null 2>&1; then
+if pgrep -x ollama > /dev/null 2>&1; then
+    :
+else
     info "Starting Ollama service..."
     ollama serve &
     sleep 3
 fi
 
-# Download models based on GPU
 case $GPU_VENDOR in
     nvidia)
         info "NVIDIA GPU detected — using CUDA models"
@@ -85,7 +87,7 @@ success "AI models configured"
 # ─── Install Python ML Stack ────────────────────────────────────────────
 step "INSTALLING PYTHON ML STACK"
 pip3 install --break-system-packages torch torchvision transformers \
-    sentencepiece protobuf accelerate 2>&1 | tail -5 || warn "Some Python ML packages failed"
+    sentencepiece protobuf accelerate 2>&1 | tail -3 || warn "Some Python ML packages failed"
 pip3 install --break-system-packages langchain chromadb faiss-cpu 2>&1 | tail -3 || true
 success "Python ML stack installed"
 
@@ -103,11 +105,8 @@ success "JupyterLab available"
 # ─── Create AI Helper Scripts ───────────────────────────────────────────
 mkdir -p /etc/skel/.local/bin
 
-# AI-powered code completion daemon
 cat > /etc/skel/.local/bin/ai-complete << 'AICOMPLETE'
 #!/bin/bash
-# Context-aware AI code completion
-# Usage: ai-complete <file> or pipe: cat file.py | ai-complete
 if [ -f "$1" ]; then
     CONTENT=$(cat "$1")
 else
@@ -120,10 +119,8 @@ curl -s http://localhost:11434/api/generate \
 AICOMPLETE
 chmod +x /etc/skel/.local/bin/ai-complete
 
-# AI system diagnostics
 cat > /etc/skel/.local/bin/ai-diagnose << 'AIDIAG'
 #!/bin/bash
-# AI-powered system diagnostics
 echo "🤖 Running AI system diagnostics..."
 echo ""
 echo "── System Info ──"
@@ -149,15 +146,12 @@ for m in models: print(f'  • {m[\"name\"]} ({m[\"size\"]/1024/1024:.1f} MB)')
 AIDIAG
 chmod +x /etc/skel/.local/bin/ai-diagnose
 
-# ─── Ollama Service ─────────────────────────────────────────────────────
 cat > /etc/skel/.local/bin/ai-start << 'AISTART'
 #!/bin/bash
 echo "🤖 Starting Ollama AI engine..."
 ollama serve &
 sleep 2
 echo "✓ Ollama running on http://localhost:11434"
-echo "✓ Default model: llama3.1:8b"
-echo ""
 echo "Usage:"
 echo "  ai <prompt>              — General AI query"
 echo "  ai codellama:7b <code>   — Code generation"
@@ -175,33 +169,25 @@ echo "✓ Ollama stopped"
 AISTOP
 chmod +x /etc/skel/.local/bin/ai-stop
 
-success "AI helper scripts created (ai-start, ai-stop, ai-complete, ai-diagnose)"
-
 # ─── Neovim AI Integration ──────────────────────────────────────────────
 mkdir -p /etc/skel/.config/nvim/lua
 cat > /etc/skel/.config/nvim/lua/ai_copilot.lua << 'AICOPILOT'
--- ShadowOS AI Copilot for Neovim
--- Requires: ollama running locally
-
 local M = {}
 
 function M.ai_complete()
     local buf = vim.api.nvim_get_current_buf()
     local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
     local code = table.concat(lines, "\n")
-
     local handle = io.popen(string.format(
         'curl -s http://localhost:11434/api/generate ' ..
         '-H "Content-Type: application/json" ' ..
         '-d \'{"model":"codellama:7b","prompt":"Complete this code:\\n%s\\n\\n// Continue:","stream":false}\'',
         code:gsub("'", "'\\''")
     ))
-
     if handle then
         local result = handle:read("*a")
         handle:close()
         local response = vim.json.decode(result).response or "No response"
-        -- Append AI completion
         local last_line = vim.api.nvim_buf_line_count(buf)
         vim.api.nvim_buf_set_lines(buf, last_line - 1, last_line, false,
             vim.split(response, "\n"))
@@ -214,14 +200,12 @@ end
 function M.ai_explain()
     local visual_text = vim.fn.getreg("*")
     if visual_text == "" then return end
-
     local handle = io.popen(string.format(
         'curl -s http://localhost:11434/api/generate ' ..
         '-H "Content-Type: application/json" ' ..
         '-d \'{"model":"llama3.1:8b","prompt":"Explain this code in detail:\\n%s","stream":false}\'',
         visual_text:gsub("'", "'\\''")
     ))
-
     if handle then
         local result = handle:read("*a")
         handle:close()
