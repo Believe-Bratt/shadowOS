@@ -1,0 +1,79 @@
+# ShadowOS GRUB Bootloader Theme
+# Cyberpunk animated boot theme
+
+desktop-image: "grub-background.png"
+desktop-color: "#0a0a0f"
+title-font: "JetBrains Mono Bold 16"
+desktop-image: "grub-background.png"
+
++ label text = "ShadowOS"
++ label text = "NeonVanguard"
+
+class desktop {
+    left = 0%
+    top = 0%
+    width = 100%
+    height = 100%
+}
+
++ boot_menu {
+    left = 10%
+    top = 35%
+    width = 80%
+    height = 40%
+}
+
++ label {
+    left = 15%
+    top = 15%
+    width = 70%
+    height = 10%
+    align = "center"
+    font = "JetBrains Mono Bold 24"
+    color = "#00ffff"
+    text = "SHADOWOS"
+}
+
++ label {
+    left = 15%
+    top = 25%
+    width = 70%
+    height = 5%
+    align = "center"
+    font = "JetBrains Mono 12"
+    color = "#ff00ff"
+    text = "Neon Vanguard Edition"
+}
+
++ label {
+    left = 15%
+    top = 30%
+    width = 70%
+    height = 5%
+    align = "center"
+    font = "JetBrains Mono 10"
+    color = "#666677"
+    text = "Cyberpunk Security Operating System"
+}
+
++ progress_bar {
+    left = 15%
+    top = 85%
+    width = 70%
+    height = 8
+    start_color = "#00ffff"
+    end_color = "#ff00ff"
+    border_width = 1
+    border_color = "#333344"
+}
+
++ label {
+    left = 15%
+    top = 92%
+    width = 70%
+    height = 5%
+    align = "center"
+    font = "JetBrains Mono 9"
+    color = "#00ffff"
+    text = "Booting ShadowOS..."
+}
