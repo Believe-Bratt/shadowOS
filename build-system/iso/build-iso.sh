@@ -68,20 +68,20 @@ cat > "$BUILD_CONFIG/config/auto/config" << 'AUTOCONF'
 set -e
 
 echo "lb config $*"
-lb config noauto \
-    --distribution kali-rolling \
-    --archive-areas "main contrib non-free" \
-    --debian-installer live \
-    --debian-installer-gui true \
-    --linux-flavours "amd64" \
-    --mode debian \
-    --apt-recommends false \
-    --apt-indices false \
-    --memtest none \
-    --iso-application "ShadowOS" \
-    --iso-publisher "ShadowOS Team" \
-    --iso-volume "ShadowOS 2026.1 believe" \
-    --binary-images iso-hybrid \
+    lb config noauto \
+        --distribution kali-rolling \
+        --archive-areas "main contrib non-free" \
+        --debian-installer live \
+        --debian-installer-gui true \
+        --linux-flavours "amd64" \
+        --mode debian \
+        --apt-recommends false \
+        --apt-indices false \
+        --memtest none \
+        --iso-application "ShadowOS" \
+        --iso-publisher "Believe Brat" \
+        --iso-volume "ShadowOS-2026" \
+        --binary-images iso-hybrid \
     --bootappend-live "boot=live components quiet splash" \
     --mirror-bootstrap http://http.kali.org/kali \
     --mirror-chroot http://http.kali.org/kali \

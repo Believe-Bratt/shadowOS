@@ -94,13 +94,20 @@ ifeq ($(PKG_MANAGER),apt)
 	sudo apt install -y live-build debootstrap syslinux isolinux \
 		xorriso grub-pc-bin grub-efi-amd64-bin mtools dosfstools \
 		qemu-utils virtualbox genisoimage curl wget git \
-		squashfs-tools extlinux
+		squashfs-tools extlinux \
+		linux-headers-$(uname -r) 2>/dev/null || \
+		sudo apt install -y linux-headers-amd64 2>/dev/null || true
+	sudo modprobe vboxhost 2>/dev/null || true
+	sudo /sbin/vboxconfig 2>/dev/null || true
 else ifeq ($(PKG_MANAGER),pacman)
 	sudo pacman -S --noconfirm --needed \
 		live-build debootstrap syslinux \
 		grub dosfstools mtools xorriso \
 		qemu-full virtualbox git \
-		squashfs-tools
+		squashfs-tools \
+		linux-headers 2>/dev/null || true
+	sudo modprobe vboxhost 2>/dev/null || true
+	sudo /sbin/vboxconfig 2>/dev/null || true
 endif
 	@echo -e "$(GREEN)✓ Build dependencies installed$(NC)"
 

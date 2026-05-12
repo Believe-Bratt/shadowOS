@@ -90,8 +90,8 @@ lb config noauto \
     --memtest none \
     --bootstrap-cache false \
     --iso-application "ShadowOS" \
-    --iso-publisher "ShadowOS Team" \
-    --iso-volume "ShadowOS2026" \
+    --iso-publisher "Believe Brat" \
+    --iso-volume "ShadowOS-2026" \
     --binary-images iso-hybrid \
     --bootappend-live "boot=live components quiet splash" \
     --mirror-bootstrap http://http.kali.org/kali \
@@ -258,6 +258,9 @@ GRUB
     export LB_MEMTEST="none"
     export LB_BINARY_IMAGES="iso-hybrid"
     export LB_BOOTAPPEND_LIVE="boot=live components quiet splash"
+    export LB_ISO_APPLICATION="ShadowOS"
+    export LB_ISO_PUBLISHER="Believe Brat"
+    export LB_ISO_VOLUME="ShadowOS-2026"
 
     # Generate live-build configuration
     log "  Configuring live-build..."
