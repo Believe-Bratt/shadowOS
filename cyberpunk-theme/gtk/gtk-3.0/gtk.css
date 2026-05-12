@@ -1,8 +1,11 @@
 /* ============================================================================
  * ShadowOS GTK3 Theme — Cyberpunk Dark
  * ============================================================================ */
+/* stylelint-disable */
+/* cspell:disable */
+/* GTK3 CSS uses custom @define-color at-rules and @variable references
+   that standard CSS linters don't recognize — this is valid GTK CSS syntax */
 
-/* ─── Color Definitions ───────────────────────────────────────────────────── */
 @define-color bg_dark #0a0a0f;
 @define-color bg_panel #1a1a2e;
 @define-color bg_secondary #2a2a3e;
