@@ -13,6 +13,17 @@ step "CONFIGURING XFCE"
 XFCE_DIR="$HOME/.config/xfce4"
 mkdir -p "$XFCE_DIR/panel" "$XFCE_DIR/xfconf/xfce-perchannel-xml"
 
+# ─── Install Cyberpunk Theme Suite ───────────────────────────────────────
+if [ -d "/usr/share/themes/ShadowOS-Dark" ]; then
+    info "Cyberpunk theme already installed system-wide"
+else
+    info "Installing cyberpunk theme suite..."
+    mkdir -p "$HOME/.config/shadowos"
+    cp -r /etc/skel/.config/shadowos/cyberpunk-theme "$HOME/.config/shadowos/" 2>/dev/null || true
+    "$HOME/.config/shadowos/cyberpunk-theme/install-theme.sh" 2>/dev/null || true
+fi
+success "Cyberpunk theme suite available"
+
 # ─── Panel Configuration ────────────────────────────────────────────────
 cat > "$XFCE_DIR/panel/preferences-1.xml" << 'XFCE'
 <?xml version="1.0" encoding="UTF-8"?>

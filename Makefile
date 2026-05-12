@@ -167,6 +167,18 @@ docs:
 	@bash documentation/build-docs.sh 2>&1 | tee $(BUILD_DIR)/docs.log
 	@echo -e "$(GREEN)✓ Documentation built in documentation/output/$(NC)"
 
+# ─── UI Themes ────────────────────────────────────────────────────────────
+ui-themes:
+	@echo -e "$(CYAN)Installing ShadowOS Cyberpunk UI Themes...$(NC)"
+	@bash cyberpunk-theme/install-theme.sh
+	@echo -e "$(GREEN)✓ UI themes installed$(NC)"
+
+ui-themes-system: ui-themes
+	@echo -e "$(CYAN)Applying system-wide theme settings...$(NC)"
+	@sudo ln -sf /usr/share/themes/ShadowOS-Dark /usr/share/themes/Default
+	@sudo ln -sf /usr/share/icons/ShadowOS /usr/share/icons/default
+	@echo -e "$(GREEN)✓ System defaults updated$(NC)"
+
 # ─── Full Build ─────────────────────────────────────────────────────────
 all: iso vm container
 	@echo -e "$(GREEN)"

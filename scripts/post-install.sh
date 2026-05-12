@@ -433,6 +433,18 @@ GTK3
 cp /etc/skel/.config/gtk-3.0/settings.ini /etc/skel/.config/gtk-4.0/settings.ini
 success "Desktop theme configured"
 
+# ─── Cyberpunk UI Theme Suite ─────────────────────────────────────────────
+step "INSTALLING CYBERPUNK UI THEME SUITE"
+if [ -f "/usr/share/themes/ShadowOS-Dark/gtk-3.0/gtk.css" ]; then
+    info "Cyberpunk theme already installed"
+else
+    bash /etc/skel/.config/shadowos/cyberpunk-theme/install-theme.sh 2>/dev/null || {
+        warn "Could not install full theme suite - some components may be missing"
+        warn "Run 'shadowos-install-themes' after boot for complete installation"
+    }
+    success "Cyberpunk UI theme suite installed"
+fi
+
 # ─── Finalization ───────────────────────────────────────────────────────
 step "FINALIZING SETUP"
 

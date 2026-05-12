@@ -1,0 +1,10 @@
+/* ============================================================================
+ * ShadowOS GTK4 Theme — Cyberpunk Dark
+ * ============================================================================
+ * Note: GTK4 theming is still evolving. This is a compatibility layer
+ * that references the GTK3 theme for consistent styling.
+ * ============================================================================ */
+
+@import url("../gtk-3.0/gtk.css");
+
+/* GTK4-specific overrides would go here as the API stabilizes */ 

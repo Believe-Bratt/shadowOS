@@ -1,0 +1,125 @@
+# ============================================================================
+# ShadowOS Alacritty Configuration — Cyberpunk Theme
+# ============================================================================
+
+# ─── Window ───────────────────────────────────────────────────────────────────
+window:
+  dimensions:
+    columns: 120
+    lines: 30
+  padding:
+    x: 8
+    y: 8
+  dynamic_padding: false
+  decorations: full
+  startup_mode: Windowed
+  title: ShadowOS Terminal
+  class:
+    instance: alacritty
+    general: alacritty
+
+# ─── Scrolling ───────────────────────────────────────────────────────────────
+scrolling:
+  history: 10000
+  multiplier: 3
+  faux_scrollbars: false
+
+# ─── Font ─────────────────────────────────────────────────────────────────────
+font:
+  normal:
+    family: JetBrains Mono
+    style: Regular
+  bold:
+    family: JetBrains Mono
+    style: Bold
+  italic:
+    family: JetBrains Mono
+    style: Italic
+  bold_italic:
+    family: JetBrains Mono
+    style: Bold Italic
+  size: 13.0
+  offset:
+    x: 0
+    y: 0
+  glyph_offset:
+    x: 0
+    y: 0
+
+# ─── Colors (Cyberpunk Neon) ─────────────────────────────────────────────────
+colors:
+  primary:
+    background: '#0a0a0f'
+    foreground: '#f0f0ff'
+  cursor:
+    text: '#0a0a0f'
+    cursor: '#00ffff'
+  vi_mode_cursor:
+    text: '#0a0a0f'
+    cursor: '#ff00ff'
+  selection:
+    text: '#0a0a0f'
+    background: '#00ffff'
+  normal:
+    black:   '#1a1a2e'
+    red:     '#ff0055'
+    green:   '#00ff88'
+    yellow:  '#ffbf00'
+    blue:    '#00ffff'
+    magenta: '#ff00ff'
+    cyan:    '#00d4ff'
+    white:   '#c0c0c0'
+  bright:
+    black:   '#555577'
+    red:     '#ff3377'
+    green:   '#00ffaa'
+    yellow:  '#ffcc00'
+    blue:    '#55ffff'
+    magenta: '#ff55ff'
+    cyan:    '#88ffff'
+    white:   '#ffffff'
+  indexed_colors: []
+
+# ─── Cursor Style ────────────────────────────────────────────────────────────
+cursor:
+  style:
+    shape: Beam
+    blinking: Always
+  unfocused_hollow: true
+
+# ─── Live Config Reload ───────────────────────────────────────────────────────
+live_config_reload: true
+
+# ─── Shell ────────────────────────────────────────────────────────────────────
+shell:
+  program: /usr/bin/zsh
+  args:
+    - -l
+
+# ─── Working Directory ───────────────────────────────────────────────────────
+working_directory: None
+
+# ─── Background Opacity ───────────────────────────────────────────────────────
+background_opacity: 0.95
+
+# ─── Key Bindings ─────────────────────────────────────────────────────────────
+key_bindings:
+  - { key: Return, mods: Control|Shift, action: SpawnNewInstance }
+  - { key: N,     mods: Control|Shift, action: SpawnNewInstance }
+  - { key: W,     mods: Control|Shift, action: CloseCurrentTab }
+  - { key: PageDown, mods: Shift, action: ScrollPageDown }
+  - { key: PageUp,   mods: Shift, action: ScrollPageUp }
+  - { key: Home,     mods: Shift, action: ScrollToTop }
+  - { key: End,      mods: Shift, action: ScrollToBottom }
+
+# ─── Mouse ────────────────────────────────────────────────────────────────────
+mouse:
+  double_click: { threshold: 300 }
+  triple_click: { threshold: 400 }
+
+# ─── Selection ────────────────────────────────────────────────────────────────
+selection:
+  semantic_escape_chars: ",│`|:\"' ()[]{}<>"
+  save_to_clipboard: false
+
+# ─── End of Alacritty Config ───────────────────────────────────────────────── 

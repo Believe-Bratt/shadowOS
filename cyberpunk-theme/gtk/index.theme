@@ -1,0 +1,21 @@
+[Theme]
+Name=ShadowOS-Dark
+Description=Cyberpunk dark theme with neon cyan/magenta accents
+Directories=gtk-3.0,gtk-4.0
+
+[Settings]
+gtk-color-scheme=dark
+gtk-enable-animations=true
+gtk-enable-event-sounds=false
+gtk-enable-input-feedback-sounds=false
+gtk-enable-tooltips=true
+gtk-menu-images=true
+gtk-primary-button-warps-slider=false
+gtk-toolbar-style=both-horiz
+gtk-tooltip-browse-mode=false
+gtk-tooltip-browse-mode-timeout=500
+gtk-xft-antialias=1
+gtk-xft-dpi=98304
+gtk-xft-hinting=1
+gtk-xft-hintstyle=hintfull
+gtk-xft-rgba=rgb

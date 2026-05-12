@@ -17,6 +17,17 @@ KDE_CURSORS_DIR="$HOME/.local/share/icons/ShadowOS/cursors"
 
 mkdir -p "$KDE_THEME_DIR" "$KDE_COLORS_DIR" "$KDE_CURSORS_DIR"
 
+# ─── Install Cyberpunk Theme Suite ───────────────────────────────────────
+if [ -d "/usr/share/themes/ShadowOS-Dark" ]; then
+    info "Cyberpunk theme already installed system-wide"
+else
+    info "Installing cyberpunk theme suite..."
+    mkdir -p "$HOME/.config/shadowos"
+    cp -r /etc/skel/.config/shadowos/cyberpunk-theme "$HOME/.config/shadowos/" 2>/dev/null || true
+    "$HOME/.config/shadowos/cyberpunk-theme/install-theme.sh" 2>/dev/null || true
+fi
+success "Cyberpunk theme suite available"
+
 # ─── Color Scheme ───────────────────────────────────────────────────────
 cat > "$KDE_COLORS_DIR/ShadowOS.colors" << 'KDECOLORS'
 [ColorScheme][General]

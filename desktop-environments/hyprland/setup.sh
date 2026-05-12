@@ -228,6 +228,18 @@ HYPRLAND
 
 success "Hyprland configured"
 
+# ─── Cyberpunk Theme Suite ────────────────────────────────────────────────
+step "INSTALLING CYBERPUNK THEME SUITE"
+if [ -d "/usr/share/themes/ShadowOS-Dark" ]; then
+    info "Cyberpunk theme already installed system-wide"
+else
+    info "Installing cyberpunk theme suite..."
+    mkdir -p ~/.config/shadowos
+    cp -r /etc/skel/.config/shadowos/cyberpunk-theme ~/.config/shadowos/ 2>/dev/null || true
+    ~/.config/shadowos/cyberpunk-theme/install-theme.sh 2>/dev/null || true
+fi
+success "Cyberpunk theme suite available"
+
 # ─── Waybar Configuration ───────────────────────────────────────────────
 mkdir -p ~/.config/waybar
 cat > ~/.config/waybar/config << 'WAYBAR'
@@ -240,7 +252,7 @@ cat > ~/.config/waybar/config << 'WAYBAR'
     "margin-right": 8,
     "modules-left": ["hyprland/workspaces", "hyprland/window"],
     "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+    "modules-right": ["ai-status", "security-status", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
 
     "hyprland/workspaces": {
         "format": "{icon}",
@@ -305,6 +317,20 @@ cat > ~/.config/waybar/config << 'WAYBAR'
     "tray": {
         "icon-size": 18,
         "spacing": 10
+    },
+
+    "custom/ai-status": {
+        "exec": "~/.config/waybar/modules/ai-status.js",
+        "interval": 10,
+        "return-type": "json",
+        "format": "🤖 {}"
+    },
+
+    "custom/security-status": {
+        "exec": "~/.config/waybar/modules/security-status.js",
+        "interval": 15,
+        "return-type": "json",
+        "format": "🛡️ {}"
     }
 }
 WAYBAR
@@ -375,6 +401,12 @@ window#waybar {
 WAYBAR_CSS
 
 success "Waybar configured with cyberpunk theme"
+
+# ─── Waybar Custom Modules ────────────────────────────────────────────────
+mkdir -p ~/.config/waybar/modules
+cp /etc/skel/.config/shadowos/cyberpunk-theme/waybar/modules/*.js ~/.config/waybar/modules/ 2>/dev/null || true
+chmod +x ~/.config/waybar/modules/*.js 2>/dev/null || true
+success "Waybar custom AI and security modules installed"
 
 # ─── Picom Config ───────────────────────────────────────────────────────
 mkdir -p ~/.config/picom

@@ -48,6 +48,98 @@ neofetch                 # Display system info
 
 ## Features
 
+### 🎨 Cyberpunk UI Theme Suite
+ShadowOS includes a complete, system-wide cyberpunk-themed user interface that transforms every aspect of the desktop experience:
+
+**GTK Theme (ShadowOS-Dark)**
+- Full GTK3 & GTK4 theme with neon color palette
+- Colors: `#00ffff` (cyan), `#ff00ff` (magenta), `#ffbf00` (amber), `#00ff88` (green), `#ff0055` (red)
+- Dark backgrounds with subtle gradients and neon glow effects
+- Custom widget styling for buttons, entries, notebooks, menus
+- Consistent theming across all GTK applications
+
+**Icon Theme (ShadowOS)**
+- Complete SVG icon set with cyberpunk aesthetic
+- Categories: Applications, Devices, Mime Types, Places, System
+- Neon-styled icons with glowing accents
+- 24px cursor size with custom neon cursor theme
+
+**SDDM Login Theme**
+- Full QML-based login screen with animated neon borders
+- Real-time clock with cyberpunk typography
+- User selection with hover effects
+- Password field with glowing focus indicator
+- Session selection with neon highlighting
+
+**Rofi Application Launcher**
+- Custom Rasi theme for rofi drun/run/ssh modes
+- Neon color scheme matching system theme
+- Animated selection with blur effects
+- Custom font: JetBrains Mono
+
+**Terminal Configurations**
+- **Kitty**: GPU-accelerated with neon cursor, transparency, tab styling
+- **Alacritty**: Hardware-accelerated with cyberpunk color palette
+- Both configured with JetBrains Mono font and matching colors
+
+**Neovim UI Enhancement**
+- Complete `init.vim` with modern plugin ecosystem:
+  - **lualine**: Neon status line with mode indicators
+  - **bufferline**: Tab management with cyberpunk colors
+  - **alpha-nvim**: Custom dashboard with logo
+  - **neo-tree**: File explorer with icons
+  - **telescope**: Fuzzy finder with preview
+  - **which-key**: Keybinding hints
+  - **treesitter**: Syntax highlighting
+  - **LSP**: Language Server Protocol support
+  - **nvim-cmp**: Auto-completion with AI integration
+  - **git-signs**: Git diff indicators
+  - **gitsigns-nvim**: Enhanced Git integration
+  - **vim-fugitive**: Git wrapper
+  - **vim-commentary**: Comment toggling
+  - **surround**: Quote/paren management
+  - **repeat**: Repeat plugin commands
+  - **unimpaired**: Pairs of mappings
+  - **targets**: Additional text objects
+  - **vim-sleuth**: Automatic indent detection
+  - **vim-illuminate**: Highlight word under cursor
+  - **todo-comments**: Highlight TODOs
+  - **indent-blankline**: Indent guides
+  - **nvim-autopairs**: Auto-close brackets
+  - **nvim-ts-context-commentstring**: Smart commenting
+
+**Conky Desktop Widget**
+- System monitor with neon-styled borders
+- Displays: CPU, RAM, Disk, IP, Tor status, Firewall status
+- Real-time updates with cyberpunk color scheme
+- Configurable position and transparency
+
+**Waybar Custom Modules**
+- **ai-status.js**: Shows Ollama AI engine status (running/stopped, model info)
+- **security-status.js**: Displays firewall, Tor, VPN, AppArmor status
+- Both modules integrate with system services for real-time data
+- Neon-styled output matching desktop theme
+
+**Lock Screen (Swaylock)**
+- Custom lock screen with blur background
+- Neon-colored indicator rings
+- Time/date display with cyberpunk font
+- PAM authentication with visual feedback
+
+**Picom Compositor**
+- Advanced effects: dual_kawase blur, wobbly windows
+- Window animations (fade, slide, zoom)
+- Shadow effects with neon-tinted edges
+- Corner rounding and transparency rules
+- Optimized for Hyprland and X11 environments
+
+**Installation & Management**
+- Single command installer: `cyberpunk-theme/install-theme.sh`
+- Installs all components to system/user directories
+- Sets environment variables automatically
+- Integrates with Makefile: `make ui-themes`
+- Post-install integration via `post-install.sh`
+
 ### 🖥️ Cyberpunk Desktop Environment
 - **Hyprland** (Wayland) — Tiling + floating, GPU compositing, blur effects
 - **KDE Plasma** — Full desktop with ShadowOS dark theme
@@ -303,6 +395,121 @@ This staged approach ensures:
 ## License
 
 Proprietary — ShadowOS Team
+
+---
+
+## UI Upgrade Migration Guide
+
+ShadowOS includes a comprehensive Cyberpunk UI Theme Suite that can be installed on existing systems or fresh installations.
+
+### Installation
+
+**Option 1: During Fresh Install**
+The UI theme suite is automatically installed during the post-install process:
+```bash
+sudo bash scripts/post-install.sh
+```
+
+**Option 2: Manual Installation on Existing System**
+```bash
+# Install all UI components
+make ui-themes
+
+# Or run installer directly
+bash cyberpunk-theme/install-theme.sh
+```
+
+**Option 3: User-Only Installation** (no root required)
+```bash
+# Install to ~/.config/shadowos/
+cp -r cyberpunk-theme ~/.config/shadowos/
+~/.config/shadowos/cyberpunk-theme/install-theme.sh --user
+```
+
+### What Gets Installed
+
+| Component | Location | Description |
+|------------|----------|-------------|
+| GTK Theme | `/usr/share/themes/ShadowOS-Dark/` | GTK3/4 dark theme with neon colors |
+| Icons | `/usr/share/icons/ShadowOS/` | Full SVG icon set |
+| Cursors | `/usr/share/icons/ShadowOS/cursors/` | Neon cursor theme (24px) |
+| SDDM Theme | `/usr/share/sddm/themes/ShadowOS/` | Login screen theme |
+| Rofi Theme | `~/.config/rofi/` | Application launcher theme |
+| Kitty Config | `~/.config/kitty/` | Terminal configuration |
+| Alacritty Config | `~/.config/alacritty/` | Terminal configuration |
+| Neovim Config | `~/.config/nvim/` | Enhanced editor with plugins |
+| Conky Config | `~/.config/conky/` | Desktop widget |
+| Waybar Modules | `~/.config/waybar/modules/` | AI & Security status modules |
+| Lock Screen | `~/.config/swaylock/` | Swaylock configuration |
+| Picom Config | `~/.config/picom/` | Compositor effects |
+| Fonts | `~/.local/share/fonts/` | JetBrains Mono & Nerd Fonts |
+
+### Desktop Environment Integration
+
+The UI suite automatically integrates with your chosen desktop environment:
+
+- **Hyprland**: Waybar modules, Picom config, GTK settings
+- **GNOME**: GSettings applied, extensions configured
+- **KDE Plasma**: Color schemes, Kvantum theme, KWin effects
+- **XFCE**: xfconf settings, panel configuration, compositing
+
+### Customization
+
+All theme files are editable in `~/.config/shadowos/cyberpunk-theme/`. Key customization points:
+
+- **Colors**: Edit `gtk/gtk-3.0/gtk.css` — change `@define-color` values
+- **Icons**: Replace SVG files in `icons/svg/` directories
+- **Waybar Modules**: Modify `waybar/modules/*.js` for custom output
+- **Neovim**: Edit `terminal-setup/nvim/init.vim` for plugins/colors
+
+### Troubleshooting
+
+**Theme not applying?**
+```bash
+# Reinstall system-wide
+sudo make ui-themes-system
+
+# Or set manually
+gsettings set org.gnome.desktop.interface gtk-theme 'ShadowOS-Dark'
+```
+
+**Waybar modules not showing?**
+```bash
+# Ensure modules are executable
+chmod +x ~/.config/waybar/modules/*.js
+
+# Restart Waybar
+killall waybar && waybar &
+```
+
+**Neovim plugins missing?**
+```bash
+# Install plugin manager (lazy.nvim) or use vim-plug
+# See terminal-setup/nvim/init.vim for plugin list
+```
+
+**Performance issues with Picom?**
+```bash
+# Disable blur effects
+sed -i 's/blur-method = "dual_kawase"/blur-method = "none"/' ~/.config/picom/picom.conf
+picom --config ~/.config/picom/picom.conf --replace
+```
+
+### Uninstall
+
+To remove the cyberpunk theme suite:
+```bash
+# Remove user configs
+rm -rf ~/.config/shadowos/cyberpunk-theme
+rm -rf ~/.config/waybar/modules/ai-status.js ~/.config/waybar/modules/security-status.js
+rm -rf ~/.config/gtk-3.0 ~/.config/gtk-4.0 ~/.config/rofi ~/.config/kitty ~/.config/alacritty
+rm -rf ~/.config/nvim ~/.config/conky ~/.config/swaylock ~/.config/picom
+
+# Reset to defaults (Ubuntu/GNOME example)
+gsettings reset org.gnome.desktop.interface gtk-theme
+gsettings reset org.gnome.desktop.interface icon-theme
+gsettings reset org.gnome.desktop.interface cursor-theme
+```
 
 ---
 

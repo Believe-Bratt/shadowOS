@@ -1,0 +1,177 @@
+// ============================================================================
+// ShadowOS Rofi Theme — Cyberpunk
+// ============================================================================
+
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "ShadowOS";
+    display-drun: "Applications";
+    drun-match-fields: "name,generic,exec,keywords";
+    sort: true;
+    matching: "fuzzy";
+    case-sensitive: false;
+    scroll-method: "fullwidth-overflow";
+    lines: 10;
+    width: 50;
+    columns: 1;
+    font: "JetBrains Mono 12";
+}
+
+// ─── Global Styles ───────────────────────────────────────────────────────────
+* {
+    bg: #0a0a0f;
+    bg-alt: #1a1a2e;
+    fg: #f0f0ff;
+    fg-dim: #666677;
+    accent: #00ffff;
+    accent2: #ff00ff;
+    highlight: #ffbf00;
+    border: 2px solid @accent;
+    radius: 8px;
+    padding: 8px;
+}
+
+// ─── Main Window ─────────────────────────────────────────────────────────────
+window {
+    background-color: @bg;
+    border: @border;
+    border-radius: @radius;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+    padding: @padding;
+}
+
+// ─── Input Bar ───────────────────────────────────────────────────────────────
+inputbar {
+    children: [prompt, entry, mode];
+    background-color: @bg-alt;
+    border: 1px solid @accent;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+prompt {
+    enabled: true;
+    background-color: transparent;
+    color: @accent;
+    font: "JetBrains Mono 12 bold";
+    padding: 0 8px;
+}
+
+entry {
+    placeholder: "Search...";
+    placeholder-color: @fg-dim;
+    background-color: transparent;
+    color: @fg;
+    cursor-color: @accent2;
+    expand: true;
+}
+
+mode {
+    background-color: transparent;
+    color: @accent2;
+    font: "JetBrains Mono 10";
+    padding: 0 8px;
+}
+
+// ─── List View ───────────────────────────────────────────────────────────────
+listview {
+    lines: @lines;
+    cycle: true;
+    scrollbar: false;
+}
+
+// ─── List Items ──────────────────────────────────────────────────────────────
+element {
+    background-color: transparent;
+    text-color: @fg;
+    dim-text-color: @fg-dim;
+    selected-normal-background: @accent;
+    selected-normal-foreground: @bg;
+    selected-active-background: @accent2;
+    selected-active-foreground: @bg;
+    selected-alt-background: @highlight;
+    selected-alt-foreground: @bg;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin: 2px 0;
+}
+
+element normal {
+    background-color: transparent;
+    text-color: @fg;
+}
+
+element alternate {
+    background-color: @bg-alt;
+    text-color: @fg;
+}
+
+element selected {
+    background-color: @accent;
+    text-color: @bg;
+    font: "JetBrains Mono 12 bold";
+    border: 1px solid @accent2;
+    box-shadow: 0 0 10px @accent;
+}
+
+element urgent {
+    background-color: @highlight;
+    text-color: @bg;
+}
+
+// ─── Icons ───────────────────────────────────────────────────────────────────
+icon {
+    size: 24px;
+    cache: true;
+}
+
+// ─── Message ─────────────────────────────────────────────────────────────────
+message {
+    background-color: @bg-alt;
+    border: 1px solid @accent;
+    border-radius: 6px;
+    padding: 12px;
+    color: @fg;
+}
+
+// ─── Error ───────────────────────────────────────────────────────────────────
+error {
+    background-color: #ff0055;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+// ─── Scrollbar ───────────────────────────────────────────────────────────────
+scrollbar {
+    handle-width: 8px;
+    background-color: @bg-alt;
+    border: none;
+    padding: 0;
+}
+
+scrollbar handle {
+    background-color: @accent;
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+scrollbar slider {
+    min-height: 20px;
+    background-color: @bg-alt;
+    border: none;
+}
+
+// ─── Separator ───────────────────────────────────────────────────────────────
+separator {
+    background-color: @accent;
+    height: 1px;
+    margin: 8px 0;
+}
+
+// ─── Neon Glow Effects ───────────────────────────────────────────────────────
+* {
+    // Rofi doesn't support box-shadow directly, but we use borders for glow effect
+    // Selected items get bright accent colors that simulate neon
+} 

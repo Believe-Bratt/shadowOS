@@ -13,6 +13,17 @@ step "CONFIGURING GNOME"
 GNOME_DIR="$HOME/.config/gnome"
 mkdir -p "$GNOME_DIR"
 
+# ─── Install Cyberpunk Theme Suite ───────────────────────────────────────
+if [ -d "/usr/share/themes/ShadowOS-Dark" ]; then
+    info "Cyberpunk theme already installed system-wide"
+else
+    info "Installing cyberpunk theme suite..."
+    mkdir -p "$HOME/.config/shadowos"
+    cp -r /etc/skel/.config/shadowos/cyberpunk-theme "$HOME/.config/shadowos/" 2>/dev/null || true
+    "$HOME/.config/shadowos/cyberpunk-theme/install-theme.sh" 2>/dev/null || true
+fi
+success "Cyberpunk theme suite available"
+
 # ─── GSettings Configuration ────────────────────────────────────────────
 gsettings set org.gnome.desktop.interface gtk-theme 'ShadowOS-Dark' 2>/dev/null || true
 gsettings set org.gnome.desktop.interface icon-theme 'ShadowOS' 2>/dev/null || true
