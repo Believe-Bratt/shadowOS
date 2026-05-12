@@ -220,10 +220,35 @@ shadowos/
 
 ## Build Commands
 
+### Staged Build Approach
+
+ShadowOS uses a **staged build approach** to ensure stability and faster builds:
+
 ```bash
-# Build ISO image
+# STAGE 1: Build minimal base ISO
 make iso
 
+# After installation, run post-install for additional tools:
+sudo /opt/ShadowOS/post-install-tools.sh
+```
+
+**STAGE 1 - Minimal Base ISO** includes:
+- KDE Plasma desktop
+- Terminal (zsh, tmux, alacritty)
+- Networking (NetworkManager, SSH)
+- Security base (nftables, apparmor, firejail, lynis)
+- Development tools (python3, build-essential)
+
+**STAGE 2 - Post-Install Tools** (run after installation):
+- AI/ML (ollama, jupyter, torch, transformers)
+- Pentest (metasploit, burpsuite, nmap, etc.)
+- Graphics (gimp, blender, inkscape)
+- Office (libreoffice)
+- Docker
+- Terminal tools
+- Multimedia
+
+```bash
 # Build VM images
 make vm
 
@@ -239,6 +264,27 @@ make test
 # Clean build artifacts
 make clean
 ```
+
+---
+
+## Post-Installation
+
+After installing the base system, run the post-install script to add additional tools:
+
+```bash
+# Run interactive post-install
+sudo /opt/ShadowOS/post-install-tools.sh
+
+# Or run specific categories
+sudo /opt/ShadowOS/post-install-tools.sh --all
+```
+
+This staged approach ensures:
+- Faster ISO build times
+- Smaller ISO size
+- Better dependency resolution
+- More stable base system
+- Ability to customize tool selection per installation
 
 ---
 

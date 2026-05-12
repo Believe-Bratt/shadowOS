@@ -16,44 +16,56 @@ step "SHADOWOS SECURITY HARDENING"
 
 # ─── Firewall (nftables) ────────────────────────────────────────────────
 step "CONFIGURING FIREWALL (nftables)"
-mkdir -p /etc/nftables
-cat > /etc/nftables/conf.d/00-shadowos-rules.nft << 'NFT'
-#!/usr/sbin/nft -f
+# Use the standard nftables config file (IMPORTANT)
+cat > /etc/nftables.conf << 'NFT'
+
 flush ruleset
 
 table inet filter {
     chain input {
         type filter hook input priority 0; policy drop;
+
         iif lo accept
         ct state established,related accept
+
         ip protocol icmp limit rate 10/second accept
         ip6 nexthdr icmpv6 limit rate 10/second accept
+
+        # SSH (custom port)
         tcp dport 2222 ct state new limit rate 5/minute accept
+
+        # DHCP
         udp dport 67-68 accept
+
+        # DNS
         udp dport 53 accept
         tcp dport 53 accept
+
+        # Tor (only local access)
         tcp dport 9050 iif lo accept
+
+        # WireGuard (restrict if possible later)
         udp dport 51820 accept
+
         reject with icmpx type host-unreachable
     }
+
     chain forward {
         type filter hook forward priority 0; policy drop;
         ct state established,related accept
         reject with icmpx type host-unreachable
     }
+
     chain output {
         type filter hook output priority 0; policy accept;
     }
 }
 
-table ip nat {
-    chain prerouting { type nat hook prerouting priority 0; policy accept; }
-    chain postrouting { type nat hook postrouting priority 100; policy accept; }
-}
 NFT
 
-nft -f /etc/nftables/conf.d/00-shadowos-rules.nft 2>/dev/null && \
-    systemctl enable nftables 2>/dev/null && \
+# Enable nftables service and load config
+systemctl enable nftables >/dev/null 2>&1
+nft -f /etc/nftables.conf >/dev/null 2>&1 && \
     success "nftables firewall applied (default-deny)" || \
     warn "Could not apply nftables rules"
 

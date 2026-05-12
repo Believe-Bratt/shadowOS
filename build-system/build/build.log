@@ -1,0 +1,18 @@
+[2026-05-11 21:13:24] lb_build 
+[2026-05-11 21:13:25] lb_bootstrap 
+P: Setting up cleanup function
+[2026-05-11 21:13:25] lb_bootstrap_cache restore
+P: Restoring bootstrap stage from cache...
+[2026-05-11 21:13:25] lb_bootstrap_copy 
+[2026-05-11 21:13:25] lb_bootstrap_cdebootstrap 
+[2026-05-11 21:13:25] lb_bootstrap_debootstrap 
+P: Begin bootstrapping system...
+[2026-05-11 21:13:25] lb_testroot 
+P: If the following stage fails, the most likely cause of the problem is with your mirror configuration or a caching proxy.
+P: Running debootstrap (download-only)... 
+I: Retrieving InRelease 
+I: Retrieving Release 
+E: Failed getting release file http://archive.ubuntu.com/ubuntu/dists/precise/Release
+P: Begin unmounting filesystems...
+P: Saving caches...
+chroot: failed to run command ‘/usr/bin/env’: No such file or directory

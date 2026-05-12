@@ -18,7 +18,7 @@ SHELL := /bin/bash
 # ─── Configuration ──────────────────────────────────────────────────────
 PROJECT_NAME    := ShadowOS
 VERSION         := 2026.1
-CODENAME        := NeonVanguard
+CODENAME        := BelieveTeckk
 BUILD_DIR       := build
 OUTPUT_DIR      := output
 CACHE_DIR       := cache
@@ -146,6 +146,13 @@ clean:
 	@rm -rf $(CACHE_DIR)
 	@rm -rf .build
 	@rm -rf binary.list chroot.files packages.chroot
+	@rm -rf chroot binary tmp
+	@rm -rf build-system/cache/*
+	@rm -rf ~/.cache/live-build
+	@rm -rf ~/.local/share/live-build
+	@sudo rm -rf /var/cache/live-build 2>/dev/null || true
+	@sudo rm -rf /var/lib/live-build 2>/dev/null || true
+	@sudo rm -rf /var/tmp/live-build 2>/dev/null || true
 	@echo -e "$(GREEN)✓ Clean complete$(NC)"
 
 # ─── Test Suite ─────────────────────────────────────────────────────────

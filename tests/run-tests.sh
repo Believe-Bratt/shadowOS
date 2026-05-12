@@ -5,7 +5,7 @@
 set -euo pipefail
 
 GREEN='\033[0;32m'; RED='\033[0;31m'; YELLOW='\033[1;33m'
-CYAN='\033[0;36m'; NC='\033[0m'
+CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
 
 PASS=0; FAIL=0; SKIP=0
 

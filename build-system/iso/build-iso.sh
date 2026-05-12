@@ -1,21 +1,23 @@
 #!/bin/bash
 # ============================================================================
 # ShadowOS ISO Builder (Debian Live-Build Based)
+# STAGE 1: Minimal Base ISO
 # ============================================================================
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 BUILD_DIR="$PROJECT_DIR/build"
 OUTPUT_DIR="$PROJECT_DIR/output"
 CACHE_DIR="$PROJECT_DIR/cache"
 
-CYAN='\033[0;36m'; GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
+CYAN='\033[0;36m'; GREEN='\033[0;32m'; RED='\033[0;31m'; YELLOW='\033[1;33m'; NC='\033[0m'
 
 log() { echo -e "$1"; }
 step() { log "\n${CYAN}═══ $1 ═══${NC}\n"; }
 success() { log "  ${GREEN}✓${NC} $1"; }
 error() { log "  ${RED}✗${NC} $1"; }
+warn() { log "  ${YELLOW}!${NC} $1"; }
 
 mkdir -p "$BUILD_DIR" "$OUTPUT_DIR" "$CACHE_DIR"
 
@@ -36,6 +38,12 @@ if [ ${#MISSING[@]} -gt 0 ]; then
 fi
 success "All build dependencies found"
 
+# Clean any previous build artifacts
+step "CLEANING PREVIOUS BUILD"
+if [ -d "$BUILD_DIR/live-build" ]; then
+    lb clean
+fi
+
 # ─── Configure Live-Build ───────────────────────────────────────────────
 step "CONFIGURING LIVE-BUILD"
 
@@ -48,28 +56,40 @@ mkdir -p "$BUILD_CONFIG/config/includes.binary/isolinux"
 mkdir -p "$BUILD_CONFIG/config/includes.binary/EFI/BOOT"
 mkdir -p "$BUILD_CONFIG/config/hooks/normal"
 mkdir -p "$BUILD_CONFIG/config/hooks/chroot"
+mkdir -p "$BUILD_CONFIG/config/auto"
+mkdir -p "$BUILD_CONFIG/config/package-lists"
+mkdir -p "$BUILD_CONFIG/config/includes.binary/grub"
+mkdir -p "$BUILD_CONFIG/config/includes.binary/isolinux"
+mkdir -p "$BUILD_CONFIG/config/includes.binary/EFI/BOOT"
 
 # Auto configuration scripts
 cat > "$BUILD_CONFIG/config/auto/config" << 'AUTOCONF'
 #!/bin/bash
 set -e
 
+echo "lb config $*"
 lb config noauto \
     --distribution kali-rolling \
-    --archive-areas "main contrib non-free non-free-firmware" \
+    --archive-areas "main contrib non-free" \
     --debian-installer live \
     --debian-installer-gui true \
     --linux-flavours "amd64" \
     --mode debian \
-    --archive-areas "main contrib non-free" \
     --apt-recommends false \
     --apt-indices false \
     --memtest none \
     --iso-application "ShadowOS" \
     --iso-publisher "ShadowOS Team" \
-    --iso-volume "ShadowOS 2026.1 NeonVanguard" \
+    --iso-volume "ShadowOS 2026.1 believe" \
     --binary-images iso-hybrid \
     --bootappend-live "boot=live components quiet splash" \
+    --mirror-bootstrap http://http.kali.org/kali \
+    --mirror-chroot http://http.kali.org/kali \
+    --mirror-chroot-security http://http.kali.org/kali \
+    --mirror-binary http://http.kali.org/kali \
+    --mirror-binary-security http://http.kali.org/kali \
+    --debootstrap-script kali-rolling \
+    --keyring-packages "kali-archive-keyring" \
     "${@}"
 AUTOCONF
 chmod +x "$BUILD_CONFIG/config/auto/config"
@@ -82,16 +102,21 @@ AUTOBUILD
 chmod +x "$BUILD_CONFIG/config/auto/build"
 
 # ─── Package Lists ──────────────────────────────────────────────────────
+# Use minimal package list for STAGE 1 (base ISO)
+# Post-install tools will be installed after system installation
 cat > "$BUILD_CONFIG/config/package-lists/shadowos.list.chroot" << 'PACKAGES'
-# ShadowOS Core Packages
+# ShadowOS Minimal Base ISO Packages
+# Core system - stable, small footprint
+# This is the STAGE 1 minimal ISO
+
 # Base system
 linux-image-amd64
 linux-headers-amd64
 firmware-linux-free
 firmware-linux-nonfree
-firmware-misc-nonfree
+coreutils
 
-# System
+# System essentials
 systemd
 systemd-sysv
 systemd-timesyncd
@@ -101,245 +126,99 @@ policykit-1
 console-setup
 keyboard-configuration
 locales
-nano
-vim
-neovim
-htop
-btop
-inxi
-neofetch
-lsb-release
 ca-certificates
 apt-transport-https
 gnupg
 dirmngr
-software-properties-common
 
-# Display
+# Display server
 xorg
 xorg-xinit
 xserver-xorg-video-all
 xserver-xorg-input-all
 mesa-utils
-vulkan-tools
-libvulkan1
 
-# Desktop Environments
+# Desktop Environment (KDE - minimal)
 kde-plasma-desktop
 kde-config-gtk-style
 sddm
 plymouth
 plymouth-themes
 
-# Terminal
-alacritty
-kitty
+# Terminal essentials
 zsh
 tmux
 screen
+alacritty
+kitty
 
-# Shell & Tools
-oh-my-zsh
-powerlevel10k
-zsh-autosuggestions
-zsh-syntax-highlighting
-fzf
-ripgrep
-fd-find
-bat
-exa
-eza
-dust
-procs
-sd
-tldr
-broot
-lazygit
-delta
-ranger
-ncdu
+# Basic shell tools
+vim
+neovim
+htop
+btop
+inxi
+neofetch
+curl
+wget
+git
 
-# Network
+# Network essentials
 network-manager
 network-manager-gnome
 wpasupplicant
 wireless-tools
-ethtool
 net-tools
 iproute2
-curl
-wget
-rsync
 openssh-server
 openssh-client
-tor
-torsocks
-proxychains4
-nmap
-netcat-openbsd
-tcpdump
-wireshark-common
-tshark
-dnsutils
-whois
-traceroute
-mtr
-iputils-ping
 
-# Security
+# Security base
 nftables
 iptables
 ufw
 firejail
 apparmor
 apparmor-profiles
-apparmor-utils
 lynis
-rkhunter
-chkrootkit
-aide
-clamav
-clamav-daemon
-libpam-tmpdir
-libpam-cap
 
-# Encryption
-cryptsetup
-lvm2
-mdadm
-veracrypt
-gnupg
-seahorse
-kleopatra
-
-# Development
+# Development base
 build-essential
-cmake
-make
-gcc
-g++
-autoconf
-automake
-libtool
-pkg-config
-git
-curl
-wget
 python3
 python3-pip
 python3-venv
-python3-dev
-nodejs
-npm
-yarn
-golang-go
-rustc
-cargo
-ruby
-lua5.4
-php
-docker.io
-docker-compense
-podman
-buildah
 
-# AI/ML
-ollama
-python3-torch
-python3-transformers
-python3-numpy
-python3-pandas
-python3-scipy
-python3-sklearn
-jupyter-notebook
-jupyterlab
-
-# Graphics
-imagemagick
-gimp
-inkscape
-blender
-
-# Multimedia
-vlc
-mpv
-ffmpeg
-pavucontrol
-pulseaudio
-pipewire
-wireplumber
-
-# Office
-libreoffice-writer
-libreoffice-calc
-libreoffice-impress
-
-# File Management
+# File management
 thunar
 file-roller
 p7zip-full
 unzip
 zip
 rsync
-rclone
 
-# Utilities
+# System utilities
 xdg-utils
 xdg-user-dirs
 cups
 cups-browsed
-sane
-simple-scan
 evince
-zathura
-atool
 jq
-yq
-hexedit
-xxd
-tmuxinator
 
-# Pentest Tools (core selection)
-nmap
-masscan
-nikto
-sqlmap
-metasploit-framework
-wireshark
-john
-hashcat
-hydra
-aircrack-ng
-recon-ng
-theharvester
-maltego
-setoolkit
-beef-xss
-mitmproxy
-burpsuite
-dirb
-gobuster
-wfuzz
-ffuf
-subfinder
-amass
-ghidra
-radare2
-binwalk
-volatility
-autopsy
-sleuthkit
-mimikatz
-impacket
-powershell
-
-# Cloud
-kubectl
-helm
-terraform
+# Post-install marker
+shadowos-postinstall
 PACKAGES
 
 success "Package lists created"
+
+# ─── Copy Post-Install Script to ISO ─────────────────────────────────────
+step "COPYING POST-INSTALL SCRIPT"
+if [ -f "$PROJECT_DIR/scripts/post-install-tools.sh" ]; then
+    cp "$PROJECT_DIR/scripts/post-install-tools.sh" "$BUILD_CONFIG/config/includes.chroot/opt/ShadowOS/post-install-tools.sh"
+    chmod +x "$BUILD_CONFIG/config/includes.chroot/opt/ShadowOS/post-install-tools.sh"
+    success "Post-install script included"
+else
+    warn "Post-install script not found at $PROJECT_DIR/scripts/post-install-tools.sh"
+fi
 
 # ─── Chroot Hooks ───────────────────────────────────────────────────────
 cat > "$BUILD_CONFIG/config/hooks/chroot/0100-shadowos.chroot" << 'CHROOT_HOOK'
@@ -352,11 +231,6 @@ echo "[ShadowOS] Configuring chroot environment..."
 mkdir -p /opt/ShadowOS/{scripts,configs,themes,ai}
 mkdir -p /etc/shadowos
 
-# Copy configurations
-if [ -d /tmp/shadowos-config ]; then
-    cp -r /tmp/shadowos-config/* /etc/shadowos/ 2>/dev/null || true
-fi
-
 # Set default shell to zsh
 chsh -s /usr/bin/zsh root
 
@@ -364,14 +238,19 @@ chsh -s /usr/bin/zsh root
 systemctl enable ssh 2>/dev/null || true
 systemctl enable nftables 2>/dev/null || true
 systemctl enable apparmor 2>/dev/null || true
-systemctl enable tor 2>/dev/null || true
-systemctl enable ollama 2>/dev/null || true
 systemctl enable sddm 2>/dev/null || true
 
-# Create AI helper symlinks
-ln -sf /opt/ShadowOS/scripts/ai /usr/local/bin/ai 2>/dev/null || true
-ln -sf /opt/ShadowOS/scripts/ai-scan /usr/local/bin/ai-scan 2>/dev/null || true
-ln -sf /opt/ShadowOS/scripts/ai-review /usr/local/bin/ai-review 2>/dev/null || true
+# Create post-install helper
+cat > /usr/local/bin/shadowos-postinstall << 'POSTINSTALL'
+#!/bin/bash
+# Run post-install tools after system installation
+if [ -f /opt/ShadowOS/post-install-tools.sh ]; then
+    sudo /opt/ShadowOS/post-install-tools.sh
+else
+    echo "Post-install script not found"
+fi
+POSTINSTALL
+chmod +x /usr/local/bin/shadowos-postinstall
 
 echo "[ShadowOS] Chroot configuration complete"
 CHROOT_HOOK
@@ -430,9 +309,9 @@ lb build 2>&1 | tee "$BUILD_DIR/build.log"
 ISO_FILE=$(find . -maxdepth 1 -name "*.iso" -type f | head -1)
 
 if [ -n "$ISO_FILE" ]; then
-    cp "$ISO_FILE" "$OUTPUT_DIR/ShadowOS-2026.1-NeonVanguard-amd64.iso"
-    success "ISO created: $OUTPUT_DIR/ShadowOS-2026.1-NeonVanguard-amd64.iso"
-    ls -lh "$OUTPUT_DIR/ShadowOS-2026.1-NeonVanguard-amd64.iso"
+    cp "$ISO_FILE" "$OUTPUT_DIR/ShadowOS-2026.1-believe-amd64.iso"
+    success "ISO created: $OUTPUT_DIR/ShadowOS-2026.1-believe-amd64.iso"
+    ls -lh "$OUTPUT_DIR/ShadowOS-2026.1-believe-amd64.iso"
 else
     error "ISO build failed. Check $BUILD_DIR/build.log"
     exit 1
@@ -440,3 +319,30 @@ fi
 
 cd "$PROJECT_DIR"
 success "ISO build complete"
+
+# ─── Post-Build Instructions ────────────────────────────────────────────
+step "POST-BUILD INSTRUCTIONS"
+log "
+${CYAN}STAGE 1 COMPLETE - Minimal Base ISO Created${NC}
+
+To install additional tools after system installation:
+
+  1. Boot the installed system
+  2. Run: sudo /opt/ShadowOS/post-install-tools.sh
+  3. Or run: sudo shadowos-postinstall
+
+Available tool categories:
+  - AI/ML (ollama, jupyter, torch, transformers)
+  - Pentest (metasploit, burpsuite, nmap, etc.)
+  - Graphics (gimp, blender, inkscape)
+  - Office (libreoffice)
+  - Docker
+  - Terminal tools
+  - Multimedia
+
+This staged approach ensures:
+  - Faster ISO build
+  - Smaller ISO size
+  - Better dependency resolution
+  - More stable base system
+"
