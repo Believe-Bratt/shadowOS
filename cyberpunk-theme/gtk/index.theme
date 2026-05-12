@@ -2,6 +2,9 @@
 Name=ShadowOS-Dark
 Description=Cyberpunk dark theme with neon cyan/magenta accents
 Directories=gtk-3.0,gtk-4.0
+Author=Believe Brat
+Copyright=Copyright (c) 2025 Believe Brat
+License=Proprietary
 
 [Settings]
 gtk-color-scheme=dark
