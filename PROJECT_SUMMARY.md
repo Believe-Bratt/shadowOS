@@ -1,26 +1,29 @@
 # ShadowOS — Project Summary
 
-> **Version:** 2026.1 | **Codename:** NeonVanguard
+> **Version:** 2026.2 | **Codename:** NeonHorizon
+> **Upgrade from:** 2026.1 "NeonVanguard"
 
 A fully customized, cyberpunk-inspired Linux operating system engineered for penetration testing, privacy, AI-powered workflows, and futuristic aesthetics.
 
 ---
 
-## ✅ Implementation Status: COMPLETE
+## ✅ Implementation Status: COMPLETE (v2026.2)
 
 ### Core System Components
 
 | # | Component | Status | Files |
 |---|-----------|--------|-------|
 | 1 | Project Architecture & Design | ✅ Complete | `ARCHITECTURE.md` |
-| 2 | Global Configuration | ✅ Complete | `config.sh` |
-| 3 | Build System (Makefile) | ✅ Complete | `Makefile` |
+| 2 | Global Configuration | ✅ Updated | `config.sh` |
+| 3 | Build System (Makefile) | ✅ Updated | `Makefile` |
 | 4 | ISO Builder (Live-Build) | ✅ Complete | `build-system/build.sh`, `build-system/iso/build-iso.sh` |
 | 5 | Post-Install Script | ✅ Complete | `scripts/post-install.sh` |
 | 6 | Setup Wizard | ✅ Complete | `scripts/shadowos-setup.sh` |
 | 7 | Backup & Restore | ✅ Complete | `scripts/backup.sh` |
 | 8 | Auto-Update System | ✅ Complete | `scripts/auto-update.sh` |
 | 9 | Uninstall Script | ✅ Complete | `scripts/uninstall.sh` |
+| 10 | **Upgrade Script** | ✅ **NEW** | `scripts/upgrade.sh` |
+| 11 | **AI Model Manager** | ✅ **NEW** | `scripts/ai-models.sh` |
 
 ### Desktop Environments
 
@@ -58,12 +61,15 @@ A fully customized, cyberpunk-inspired Linux operating system engineered for pen
 | 24 | Ollama Setup | ✅ Complete | `ai-integration/setup-ai.sh` |
 | 25 | AI Helper Commands | ✅ Complete | `ai`, `ai-scan`, `ai-review`, `ai-start`, `ai-stop` |
 | 26 | Neovim AI Copilot | ✅ Complete | `terminal-setup/nvim/lua/ai_copilot.lua` |
+| 27 | **AI Model Manager** | ✅ **NEW** | `scripts/ai-models.sh` |
+| 28 | **AI Voice Assistant** | 🔧 Planned | `scripts/voice-assistant.sh` |
+| 29 | **RAG System** | 🔧 Planned | `ai-integration/rag-system.sh` |
 
 ### Pentesting
 
 | # | Component | Status | Files |
 |---|-----------|--------|-------|
-| 27 | Tool List (200+ tools) | ✅ Complete | `pentest-suite/kali-tools.list` |
+| 27 | Tool List (300+ tools) | ✅ Updated | `pentest-suite/kali-tools.list` |
 | 28 | Pentest Installer | ✅ Complete | `pentest-suite/install.sh` |
 | 29 | Quick Start Script | ✅ Complete | `pentest-suite/quick-start.sh` |
 | 30 | Web Scanner | ✅ Complete | `pentest-suite/web-scan.sh` |
@@ -146,7 +152,9 @@ shadowos/
 │   ├── backup.sh                     # Backup & restore
 │   ├── post-install.sh               # Main post-install
 │   ├── shadowos-setup.sh             # Interactive setup wizard
-│   └── uninstall.sh                  # Clean uninstall
+│   ├── uninstall.sh                  # Clean uninstall
+│   ├── upgrade.sh                    # System upgrade script (NEW)
+│   └── ai-models.sh                  # AI model manager (NEW)
 ├── security-hardening/
 │   └── apply-hardening.sh            # Security hardening script
 ├── system-services/

@@ -46,7 +46,7 @@ font:
     x: 0
     y: 0
 
-# ─── Colors (Cyberpunk Neon) ─────────────────────────────────────────────────
+# ─── Colors (BeltrixOS Inspired) ──────────────────────────────────────────────
 colors:
   primary:
     background: '#0a0a0f'
@@ -56,7 +56,7 @@ colors:
     cursor: '#00ffff'
   vi_mode_cursor:
     text: '#0a0a0f'
-    cursor: '#ff00ff'
+    cursor: '#c54dff'
   selection:
     text: '#0a0a0f'
     background: '#00ffff'
@@ -66,7 +66,7 @@ colors:
     green:   '#00ff88'
     yellow:  '#ffbf00'
     blue:    '#00ffff'
-    magenta: '#ff00ff'
+    magenta: '#c54dff'
     cyan:    '#00d4ff'
     white:   '#c0c0c0'
   bright:
@@ -75,7 +75,7 @@ colors:
     green:   '#00ffaa'
     yellow:  '#ffcc00'
     blue:    '#55ffff'
-    magenta: '#ff55ff'
+    magenta: '#d47dff'
     cyan:    '#88ffff'
     white:   '#ffffff'
   indexed_colors: []

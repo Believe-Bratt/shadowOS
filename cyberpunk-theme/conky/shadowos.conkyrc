@@ -1,5 +1,5 @@
 # ============================================================================
-# ShadowOS Conky Configuration — Cyberpunk Desktop Widget
+# ShadowOS Conky Configuration — BeltrixOS Inspired System Overview
 # ============================================================================
 # Place in ~/.config/conky/shadowos.conkyrc or /etc/conky/shadowos.conkyrc
 # ============================================================================
@@ -11,16 +11,16 @@ conky.config = {
     own_window_transparent = true,
     own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
     own_window_argb_visual = true,
-    own_window_argb_value = 180,
+    own_window_argb_value = 200,
     own_window_colour = '#0a0a0f',
-    border_inner_margin = 10,
-    border_outer_margin = 10,
+    border_inner_margin = 15,
+    border_outer_margin = 15,
 
     -- ─── Positioning ──────────────────────────────────────────────────────────
     alignment = 'top_right',
     gap_x = 20,
     gap_y = 80,
-    minimum_width = 300,
+    minimum_width = 320,
     maximum_width = 350,
     draw_shades = false,
     draw_outline = false,
@@ -32,42 +32,49 @@ conky.config = {
     use_xft = true,
     xftalpha = 1.0,
 
-    -- ─── Colors ───────────────────────────────────────────────────────────────
+    -- ─── Colors (BeltrixOS Palette) ───────────────────────────────────────────
     default_color = '#f0f0ff',
     default_shade_color = '#0a0a0f',
-    color1 = '#00ffff',  -- Cyan (CPU, Network)
-    color2 = '#ff00ff',  -- Magenta (Memory)
+    color1 = '#00ffff',  -- Cyan (CPU)
+    color2 = '#ff00ff',  -- Magenta (RAM)
     color3 = '#ffbf00',  -- Amber (Disk)
-    color4 = '#00ff88',  -- Green (Uptime)
-    color5 = '#ff0055',  -- Red (Warnings)
+    color4 = '#00ff88',  -- Green (Uptime, Security)
+    color5 = '#c54dff',  -- Purple (AI, special)
+    color6 = '#ff0055',  -- Red (Warnings)
 
     -- ─── Update ───────────────────────────────────────────────────────────────
     update_interval = 1.0,
     double_buffer = true,
-    lua_load = '~/.config/conky/shadowos.lua',
-    lua_draw_hook_pre = 'main',
 }
 
 conky.text = [[
-${color #00ffff}╔═══════════════════════════════════╗${color}
-${color #00ffff}║${color}  🌑 SHADOWOS SYSTEM MONITOR        ${color #00ffff}║${color}
-${color #00ffff}╠═══════════════════════════════════╣${color}
-${color #00ffff}║${color}  CPU:   ${color #00ff88}${cpu}%${color}${color #00ffff}│${color}${cpubar 8 150}      ${color #00ffff}║${color}
-${color #00ffff}║${color}  RAM:   ${color #ff00ff}${mem}%${color}${color #00ffff}│${color}${membar 8 150}      ${color #00ffff}║${color}
-${color #00ffff}║${color}  DISK:  ${color #ffbf00}${fs_used /} / ${fs_size /}${color}${color #00ffff}│${color}${fs_bar 8 150 /}      ${color #00ffff}║${color}
-${color #00ffff}║${color}  SWAP:  ${swap} / ${swapmax}${color #00ffff}│${color}${swapbar 8 150}      ${color #00ffff}║${color}
-${color #00ffff}╠═══════════════════════════════════╣${color}
-${color #00ffff}║${color}  NET:   ${color #00ffff}${addr eth0}${color}${color #00ffff}│${color}↓${downspeed eth0} KB/s ↑${upspeed eth0} KB/s ${color #00ffff}║${color}
-${color #00ffff}║${color}  TOR:   ${color #00ff88}${execi 5 systemctl is-active tor | tr -d '\n'}${color}${color #00ffff}│${color}${color #00ffff}║${color}
-${color #00ffff}║${color}  VPN:   ${color #00ff88}${execi 5 wg show 2>/dev/null | grep -c 'interface:' || echo 'off'}${color}${color #00ffff}│${color}${color #00ffff}║${color}
-${color #00ffff}╠═══════════════════════════════════╣${color}
-${color #00ffff}║${color}  UPTIME:${color #00ff88} ${uptime}${color}                         ${color #00ffff}║${color}
-${color #00ffff}║${color}  TIME:  ${color #ff00ff}${time %H:%M:%S}${color} ${color #00ffff}│${color} ${color #ffbf00}${time %d/%m/%Y}${color}           ${color #00ffff}║${color}
-${color #00ffff}╚═══════════════════════════════════╝${color}
+${color #00ffff}╔══════════════════════════════════════╗${color}
+${color #00ffff}║${color}  ${color #00ffff}SYSTEM OVERVIEW${color}                      ${color #00ffff}║${color}
+${color #00ffff}╠══════════════════════════════════════╣${color}
+${color #00ffff}║${color}  ${color #c54dff}CPU${color}   ${color #00ffff}${cpu}%${color}${color #00ffff}│${color}${cpubar 8 120} ${color #00ffff}║${color}
+${color #00ffff}║${color}  ${color #ff00ff}RAM${color}   ${color #00ffff}${mem}%${color}${color #00ffff}│${color}${membar 8 120} ${color #00ffff}║${color}
+${color #00ffff}║${color}  ${color #ffbf00}DISK${color}  ${color #00ffff}${fs_used /} / ${fs_size /}${color}${color #00ffff}│${color}${fs_bar 8 120 /} ${color #00ffff}║${color}
+${color #00ffff}║${color}  ${color #00ff88}SWAP${color}  ${color #00ffff}${swap} / ${swapmax}${color}${color #00ffff}│${color}${swapbar 8 120} ${color #00ffff}║${color}
+${color #00ffff}╠══════════════════════════════════════╣${color}
+${color #00ffff}║${color}  ${color #00ffff}NETWORK${color}                            ${color #00ffff}║${color}
+${color #00ffff}║${color}  ↓ ${downspeed eth0} KB/s │ ↑ ${upspeed eth0} KB/s       ${color #00ffff}║${color}
+${color #00ffff}║${color}  IP: ${addr eth0}                         ${color #00ffff}║${color}
+${color #00ffff}╠══════════════════════════════════════╣${color}
+${color #00ffff}║${color}  ${color #c54dff}AI ACTIVITY${color}                         ${color #00ffff}║${color}
+${color #00ffff}║${color}  Processes: ${color #c54dff}${execi 2 ps aux | grep -c ollama || echo 0}${color}   Models: ${color #c54dff}${execi 2 ollama ls 2>/dev/null | grep -c '^name' || echo 0}${color} ${color #00ffff}║${color}
+${color #00ffff}╠══════════════════════════════════════╣${color}
+${color #00ffff}║${color}  ${color #00ff88}SECURITY${color}                            ${color #00ffff}║${color}
+${color #00ffff}║${color}  ${execi 3 systemctl is-active nftables | tr -d '\n' | sed 's/active/🔒/' | sed 's/inactive/⚠/'}${color} ${color #00ffff}║${color}
+${color #00ffff}║${color}  ${execi 3 systemctl is-active tor | tr -d '\n' | sed 's/active/🧅/' | sed 's/inactive/○/'}${color} ${color #00ffff}║${color}
+${color #00ffff}║${color}  ${execi 5 wg show 2>/dev/null | grep -q interface: && echo "🔐 VPN" || echo "○ VPN"}${color} ${color #00ffff}║${color}
+${color #00ffff}╠══════════════════════════════════════╣${color}
+${color #00ffff}║${color}  ${color #ffbf00}UPTIME${color}  ${color #00ff88}${uptime}${color}                         ${color #00ffff}║${color}
+${color #00ffff}║${color}  ${color #ff00ff}TIME${color}    ${color #00ffff}${time %H:%M:%S}${color} ${color #00ffff}│${color} ${color #ffbf00}${time %d/%m/%Y}${color}    ${color #00ffff}║${color}
+${color #00ffff}╚══════════════════════════════════════╝${color}
 
-${color #00ffff}┌─ Processes (${processes}) ────────────────────────┐${color}
+${color #00ffff}┌─ Top Processes ──────────────────────────────┐${color}
 ${color #00ffff}│${color}${top name 1} ${color #00ffff}│${color}${top cpu 1}% ${color #00ffff}│${color}
 ${color #00ffff}│${color}${top name 2} ${color #00ffff}│${color}${top cpu 2}% ${color #00ffff}│${color}
 ${color #00ffff}│${color}${top name 3} ${color #00ffff}│${color}${top cpu 3}% ${color #00ffff}│${color}
-${color #00ffff}└───────────────────────────────────────────────┘${color}
+${color #00ffff}└─────────────────────────────────────────────┘${color}
 ]] 

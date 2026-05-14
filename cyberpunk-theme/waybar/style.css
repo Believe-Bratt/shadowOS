@@ -1,0 +1,112 @@
+/* ============================================================================
+ * ShadowOS Waybar Style — BeltrixOS Inspired
+ * ============================================================================ */
+
+:root {
+    --bg-dark: #0a0a0f;
+    --bg-panel: #1a1a2e;
+    --bg-glass: rgba(26, 26, 46, 0.6);
+    --fg-light: #f0f0ff;
+    --fg-dim: #8888aa;
+    --neon-cyan: #00ffff;
+    --neon-magenta: #ff00ff;
+    --neon-purple: #c54dff;
+    --neon-amber: #ffbf00;
+    --neon-green: #00ff88;
+    --neon-red: #ff0055;
+}
+
+/* Global */
+* {
+    font-family: "JetBrains Mono", sans-serif;
+    font-size: 12px;
+    min-height: 0;
+}
+
+/* Bar */
+window#waybar {
+    background: var(--bg-panel);
+    color: var(--fg-light);
+    border-bottom: 2px solid var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+/* Modules */
+#clock, #battery, #cpu, #memory, #disk, #network, #pulseaudio, #tray,
+#custom-ai-status, #custom-security-status, #custom-power,
+#custom-logo, #hyprland-workspaces {
+    padding: 0 12px;
+    margin: 3px 4px;
+    background: var(--bg-glass);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 8px;
+    color: var(--fg-light);
+}
+
+/* Logo */
+#custom-logo {
+    font-size: 16px;
+    color: var(--neon-cyan);
+    margin-left: 8px;
+}
+
+/* Workspaces */
+#hyprland-workspaces button {
+    background: var(--bg-glass);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 6px;
+    margin: 2px;
+    padding: 4px 12px;
+    color: var(--fg-dim);
+}
+#hyprland-workspaces button.active {
+    background: var(--neon-cyan);
+    color: var(--bg-dark);
+    font-weight: bold;
+    box-shadow: 0 0 15px var(--neon-cyan);
+}
+
+/* Clock */
+#clock {
+    color: var(--neon-purple);
+    font-weight: bold;
+}
+
+/* CPU */
+#cpu { color: var(--neon-cyan); }
+
+/* Memory */
+#memory { color: var(--neon-magenta); }
+
+/* Disk */
+#disk { color: var(--neon-amber); }
+
+/* Battery */
+#battery { color: var(--neon-green); }
+#battery.critical { color: var(--neon-red); }
+
+/* Network */
+#network { color: var(--neon-cyan); }
+#network.disconnected { color: var(--neon-red); }
+
+/* Pulseaudio */
+#pulseaudio { color: var(--neon-magenta); }
+#pulseaudio.muted { color: var(--neon-red); }
+
+/* AI Status */
+#custom-ai-status {
+    color: var(--neon-purple);
+    font-weight: bold;
+}
+
+/* Security Status */
+#custom-security-status {
+    color: var(--neon-green);
+    font-weight: bold;
+}
+
+/* Power */
+#custom-power {
+    color: var(--neon-red);
+    font-size: 14px;
+}

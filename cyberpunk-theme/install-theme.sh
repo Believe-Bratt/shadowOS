@@ -228,13 +228,20 @@ fi
 # ─── 10. Waybar Custom Modules ────────────────────────────────────────────────
 step "10. Installing Waybar Custom Modules"
 
-WAYBAR_SRC="$SCRIPT_DIR/waybar/modules"
-WAYBAR_DST_USER="$HOME/.config/waybar/modules"
+WAYBAR_SRC="$SCRIPT_DIR/waybar"
+WAYBAR_DST_USER="$HOME/.config/waybar"
 
 if [[ -d "$WAYBAR_SRC" ]]; then
     mkdir -p "$WAYBAR_DST_USER"
-    cp "$WAYBAR_SRC"/*.js "$WAYBAR_DST_USER/" 2>/dev/null || true
-    success "Waybar modules installed to $WAYBAR_DST_USER"
+    # Copy config
+    [[ -f "$WAYBAR_SRC/config" ]] && cp "$WAYBAR_SRC/config" "$WAYBAR_DST_USER/"
+    # Copy style
+    [[ -f "$WAYBAR_SRC/style.css" ]] && cp "$WAYBAR_SRC/style.css" "$WAYBAR_DST_USER/"
+    # Copy Python modules
+    cp "$WAYBAR_SRC/modules"/*.py "$WAYBAR_DST_USER/modules/" 2>/dev/null || true
+    # Make modules executable
+    chmod +x "$WAYBAR_DST_USER/modules"/*.py 2>/dev/null || true
+    success "Waybar config and modules installed to $WAYBAR_DST_USER"
 fi
 
 # ─── 11. Lock Screen (Swaylock) ───────────────────────────────────────────────
@@ -308,6 +315,45 @@ QTEOF
     success "Qt5ct config created"
 fi
 
+# ─── 14. Wallpaper Setup ─────────────────────────────────────────────────────────
+step "14. Setting Up Wallpaper"
+
+WALLPAPER_SRC="$SCRIPT_DIR/wallpapers"
+WALLPAPER_DST_USER="$HOME/.config/shadowos/cyberpunk-theme/wallpapers"
+WALLPAPER_DST_SYS="/usr/share/backgrounds/shadowos"
+
+if [[ -d "$WALLPAPER_SRC" ]]; then
+    # User installation
+    mkdir -p "$(dirname "$WALLPAPER_DST_USER")"
+    cp -r "$WALLPAPER_SRC" "$(dirname "$WALLPAPER_DST_USER")/" 2>/dev/null || true
+    success "Wallpaper files installed to ~/.config/shadowos/cyberpunk-theme/wallpapers/"
+
+    # System-wide installation for SDDM and display managers
+    if [[ -f "$WALLPAPER_SRC/wallpaper1.png" ]]; then
+        run_as_root mkdir -p "$WALLPAPER_DST_SYS"
+        run_as_root cp "$WALLPAPER_SRC/wallpaper1.png" "$WALLPAPER_DST_SYS/"
+        run_as_root chmod 644 "$WALLPAPER_DST_SYS/wallpaper1.png"
+        success "System wallpaper installed to $WALLPAPER_DST_SYS/"
+
+        # Update SDDM theme to use system wallpaper
+        if [[ -d "/usr/share/sddm/themes/ShadowOS" ]]; then
+            run_as_root sed -i 's|^Background=.*|Background=../wallpapers/wallpaper1.png|' /usr/share/sddm/themes/ShadowOS/theme.conf 2>/dev/null || true
+            run_as_root sed -i 's|^Background=.*|Background=/usr/share/backgrounds/shadowos/wallpaper1.png|' /usr/share/sddm/themes/ShadowOS/theme.conf 2>/dev/null || true
+            success "SDDM wallpaper path updated"
+        fi
+    fi
+
+    # Offer to set user wallpaper
+    if command -v feh &>/dev/null; then
+        read -p "Set wallpaper with feh now? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            feh --bg-fill "$WALLPAPER_DST_USER/wallpapers/wallpaper1.png" 2>/dev/null || true
+            success "Wallpaper set with feh"
+        fi
+    fi
+fi
+
 # ─── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}══════════════════════════════════════════════════${NC}"
@@ -321,16 +367,18 @@ echo -e "    • Cursor Theme: $CURSOR_THEME"
 echo -e "    • SDDM Login Theme"
 echo -e "    • Rofi Launcher Theme"
 echo -e "    • Kitty & Alacritty Terminal Configs"
-echo -e "    • Neovim UI Enhancements (dashboard, lualine, neo-tree, telescope)"
+echo -e "    • Neovim UI Enhancements"
 echo -e "    • Conky Desktop Widget"
-echo -e "    • Waybar AI & Security Modules"
+echo -e "    • Waybar Config + AI & Security Modules"
 echo -e "    • Swaylock Lock Screen"
 echo -e "    • Enhanced Picom (blur, animations, wobbly)"
+echo -e "    • Cyber City Wallpaper (BeltrixOS style)"
 echo ""
 echo -e "  ${YELLOW}To activate:${NC}"
 echo -e "    • Log out and log back in (for GTK/icon theme)"
 echo -e "    • Or run: gsettings set org.gnome.desktop.interface gtk-theme '$THEME_NAME'"
 echo -e "    • For SDDM: sudo sddm --example-config | sudo tee /etc/sddm.conf"
+echo -e "    • For Waybar: killall waybar && waybar &"
 echo ""
 echo -e "  ${CYAN}Enjoy your cyberpunk desktop! 🌑${NC}"
 echo ""

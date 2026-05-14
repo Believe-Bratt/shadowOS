@@ -134,11 +134,13 @@ alias vpn-status='sudo wg show'
 alias myip='curl -s ifconfig.me'
 alias dns-test='curl -s https://dnsleaktest.com/api/v1/dns | python3 -m json.tool'
 
-# AI Commands
-alias ai='ollama run llama3.1:8b'
+# AI Commands (v2026.2 — Updated Models)
+alias ai='ollama run llama3.2:8b'
 alias ai-code='ollama run codellama:7b'
-alias ai-chat='ollama run neural-chat:7b'
+alias ai-chat='ollama run gemma2:9b'
 alias ai-light='ollama run phi3:mini'
+alias ai-vision='ollama run llava:7b'
+alias ai-models='bash /opt/ShadowOS/scripts/ai-models.sh'
 alias ai-scan='/etc/skel/.local/bin/ai-scan'
 alias ai-review='/etc/skel/.local/bin/ai-review'
 alias ai-start='/etc/skel/.local/bin/ai-start'
@@ -188,6 +190,25 @@ alias processes='procs --sortd cpu'
 alias shadowos-status='shadowos-status'
 alias shadowos-update='sudo bash /opt/ShadowOS/scripts/auto-update.sh'
 alias shadowos-backup='sudo tar czf /opt/ShadowOS-backup-$(date +%Y%m%d).tar.gz /etc/shadowos /opt/ShadowOS /root/.config 2>/dev/null'
+alias shadowos-diagnose='bash /opt/ShadowOS/scripts/diagnostics.sh --quick'
+alias shadowos-health='bash /opt/ShadowOS/scripts/diagnostics.sh --report'
+
+# Power management (v2026.2.1)
+alias power-profile='bash /opt/ShadowOS/scripts/power-profile.sh'
+alias power-perf='sudo bash /opt/ShadowOS/scripts/power-profile.sh performance'
+alias power-save='sudo bash /opt/ShadowOS/scripts/power-profile.sh powersave'
+alias power-turbo='sudo bash /opt/ShadowOS/scripts/power-profile.sh turbo'
+alias power-status='bash /opt/ShadowOS/scripts/power-profile.sh status'
+
+# Backup (encrypted, v2026.2.1)
+alias backup-create='sudo bash /opt/ShadowOS/scripts/backup-encrypted.sh create'
+alias backup-restore='sudo bash /opt/ShadowOS/scripts/backup-encrypted.sh restore'
+alias backup-list='bash /opt/ShadowOS/scripts/backup-encrypted.sh list'
+
+# Security hardening (v2026.2.1)
+alias bluetooth-harden='sudo bash /opt/ShadowOS/security-hardening/bluetooth-hardening.sh harden'
+alias bluetooth-disable='sudo bash /opt/ShadowOS/security-hardening/bluetooth-hardening.sh disable'
+alias bluetooth-status='sudo bash /opt/ShadowOS/security-hardening/bluetooth-hardening.sh status'
 
 # ─── Functions ───────────────────────────────────────────────────────────
 

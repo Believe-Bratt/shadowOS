@@ -94,6 +94,35 @@ RestartSec=60
 WantedBy=multi-user.target
 '
 
+install_service "shadowos-bluetooth.service" '
+[Unit]
+Description=ShadowOS Bluetooth Security
+After=bluetooth.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/ShadowOS/security-hardening/bluetooth-hardening.sh harden
+
+[Install]
+WantedBy=multi-user.target
+'
+
+install_service "shadowos-usbguard.service" '
+[Unit]
+Description=ShadowOS USBGuard — USB Device Authorization
+After=systemd-udevd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/usbguard-daemon
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+'
+
 install_service "shadowos-update.service" '
 [Unit]
 Description=ShadowOS Automatic Updates
@@ -146,7 +175,7 @@ WantedBy=multi-user.target
 # ─── Enable Services ─────────────────────────────────────────────────────
 step "ENABLING SERVICES"
 
-for svc in shadowos-ai shadowos-monitor shadowos-privacy shadowos-security shadowos-update.timer shadowos-boot-status; do
+for svc in shadowos-ai shadowos-monitor shadowos-privacy shadowos-security shadowos-bluetooth shadowos-usbguard shadowos-update.timer shadowos-boot-status; do
     systemctl enable "$svc" 2>/dev/null && success "Enabled: $svc" || warn "Could not enable: $svc"
 done
 
@@ -160,5 +189,7 @@ echo -e "    • shadowos-ai        — Ollama AI engine"
 echo -e "    • shadowos-monitor   — System dashboard"
 echo -e "    • shadowos-privacy   — Tor/VPN privacy"
 echo -e "    • shadowos-security  — File integrity monitoring"
+echo -e "    • shadowos-bluetooth — Bluetooth hardening"
+echo -e "    • shadowos-usbguard  — USB device authorization"
 echo -e "    • shadowos-update    — Daily auto-updates"
 echo -e "    • shadowos-boot-status — Boot welcome message"

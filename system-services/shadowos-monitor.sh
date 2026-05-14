@@ -2,6 +2,7 @@
 # ============================================================================
 # ShadowOS System Monitor Service
 # Real-time system dashboard with cyberpunk aesthetics
+# Updated for v2026.2 NeonHorizon
 # ============================================================================
 
 MONITOR_DIR="/opt/ShadowOS/monitor"
@@ -94,6 +95,31 @@ get_gpu_info() {
     fi
 }
 
+get_ai_status() {
+    if pgrep -x ollama > /dev/null; then
+        local model=$(curl -s http://localhost:11434/api/tags 2>/dev/null | python3 -c "
+import sys,json
+try:
+    data=json.load(sys.stdin)
+    models=data.get('models',[])
+    if models: print(f'{models[0][\"name\"]} ({models[0].get(\"size\",0)/1024/1024:.0f}MB)')
+    else: print('No models loaded')
+except: print('Error')" 2>/dev/null || echo "Loading...")
+        echo -e "${GREEN}RUNNING${NC} ($model)"
+    else
+        echo -e "${RED}STOPPED${NC}"
+    fi
+}
+
+get_docker_status() {
+    if command -v docker &>/dev/null; then
+        local count=$(docker ps -q 2>/dev/null | wc -l)
+        echo -e "${GREEN}$count container(s)${NC}"
+    else
+        echo "N/A"
+    fi
+}
+
 get_tor_status() {
     if pgrep -x tor > /dev/null; then
         echo -e "${GREEN}ACTIVE${NC} (Port 9050)"
@@ -121,6 +147,34 @@ get_encryption_status() {
     fi
 }
 
+get_bluetooth_status() {
+    if systemctl is-active bluetooth &>/dev/null; then
+        echo -e "${YELLOW}ACTIVE${NC}"
+    else
+        echo -e "${GREEN}DISABLED (hardened)${NC}"
+    fi
+}
+
+get_usbguard_status() {
+    if systemctl is-active usbguard &>/dev/null; then
+        echo -e "${GREEN}ACTIVE${NC}"
+    else
+        echo -e "${YELLOW}NOT INSTALLED${NC}"
+    fi
+}
+
+get_ai_models_count() {
+    if pgrep -x ollama > /dev/null; then
+        local count=$(curl -s http://localhost:11434/api/tags 2>/dev/null | python3 -c "
+import sys,json
+try: print(len(json.load(sys.stdin).get('models',[])))
+except: print(0)" 2>/dev/null || echo "0")
+        echo -e "${GREEN}$count models${NC}"
+    else
+        echo "N/A"
+    fi
+}
+
 # ─── ASCII Bar Graph ────────────────────────────────────────────────────
 draw_bar() {
     local value=$1
@@ -128,30 +182,30 @@ draw_bar() {
     local width=30
     local filled=$((value * width / max))
     local empty=$((width - filled))
-    
+
     local color=$GREEN
     if [ "$value" -gt 80 ]; then color=$RED
     elif [ "$value" -gt 50 ]; then color=$YELLOW
     fi
-    
+
     printf "${color}["
-    printf "%0.s█" $(seq 1 $filled)
-    printf "%0.s░" $(seq 1 $empty)
+    printf "%0.s#" $(seq 1 $filled)
+    printf "%0.s-" $(seq 1 $empty)
     printf "${NC}]"
 }
 
 # ─── Dashboard Render ───────────────────────────────────────────────────
 render_dashboard() {
     echo -e "$CLEAR"
-    
+
     local cpu=$(get_cpu_usage | cut -d. -f1)
     local mem_percent=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
-    
+
     echo -e "${BOLD}${CYAN}╔══════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${CYAN}║  🌑 SHADOWOS SYSTEM DASHBOARD                                        ║${NC}"
+    echo -e "${BOLD}${CYAN}║  SHADOWOS SYSTEM DASHBOARD v2026.2 NeonHorizon                       ║${NC}"
     echo -e "${BOLD}${CYAN}╚══════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    
+
     # ─── CPU Section ──────────────────────────────────────────────────
     echo -e "  ${BOLD}┌─ CPU ──────────────────────────────────────────────────────┐${NC}"
     echo -e "  │  Usage: ${GREEN}${cpu}%${NC}  Temp: $(get_cpu_temp)"
@@ -161,7 +215,7 @@ render_dashboard() {
     echo -e "  │  Processes: $(get_process_count)"
     echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
     echo ""
-    
+
     # ─── Memory Section ──────────────────────────────────────────────
     echo -e "  ${BOLD}┌─ MEMORY ──────────────────────────────────────────────────┐${NC}"
     echo -e "  │  $(get_ram_usage)"
@@ -170,13 +224,26 @@ render_dashboard() {
     draw_bar "$mem_percent" 100
     echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
     echo ""
-    
-    # ─── Disk Section ────────────────────────────────────────────────
+
+    # ─── GPU Section ─────────────────────────────────────────────────
+    echo -e "  ${BOLD}┌─ GPU ────────────────────────────────────────────────────┐${NC}"
+    echo -e "  │  $(get_gpu_info)"
+    echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
+    echo ""
+
+    # ─── AI Engine Section ───────────────────────────────────────────
+    echo -e "  ${BOLD}┌─ AI ENGINE ──────────────────────────────────────────────┐${NC}"
+    echo -e "  │  Ollama: $(get_ai_status)"
+    echo -e "  │  Models: $(get_ai_models_count)"
+    echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
+    echo ""
+
+    # ─── Storage Section ──────────────────────────────────────────────
     echo -e "  ${BOLD}┌─ STORAGE ────────────────────────────────────────────────┐${NC}"
     echo -e "  │  $(get_disk_usage)"
     echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
     echo ""
-    
+
     # ─── Network Section ─────────────────────────────────────────────
     echo -e "  ${BOLD}┌─ NETWORK ────────────────────────────────────────────────┐${NC}"
     echo -e "  │  $(get_network_stats)"
@@ -185,20 +252,23 @@ render_dashboard() {
     echo -e "  │  Firewall: $(get_firewall_status)"
     echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
     echo ""
-    
+
+    # ─── Containers Section ──────────────────────────────────────────
+    echo -e "  ${BOLD}┌─ CONTAINERS ─────────────────────────────────────────────┐${NC}"
+    echo -e "  │  Docker: $(get_docker_status)"
+    echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
+    echo ""
+
     # ─── Security Section ────────────────────────────────────────────
     echo -e "  ${BOLD}┌─ SECURITY ───────────────────────────────────────────────┐${NC}"
-    echo -e "  │  Encryption: $(get_encryption_status)"
-    echo -e "  │  Uptime: $(get_uptime)"
+    echo -e "  │  Encryption:  $(get_encryption_status)"
+    echo -e "  │  Bluetooth:   $(get_bluetooth_status)"
+    echo -e "  │  USBGuard:    $(get_usbguard_status)"
+    echo -e "  │  AI Models:   $(get_ai_models_count)"
+    echo -e "  │  Uptime:      $(get_uptime)"
     echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
     echo ""
-    
-    # ─── GPU Section ─────────────────────────────────────────────────
-    echo -e "  ${BOLD}┌─ GPU ────────────────────────────────────────────────────┐${NC}"
-    echo -e "  │  $(get_gpu_info)"
-    echo -e "  └──────────────────────────────────────────────────────────┘${NC}"
-    echo ""
-    
+
     # ─── Top Processes ───────────────────────────────────────────────
     echo -e "  ${BOLD}┌─ TOP PROCESSES ─────────────────────────────────────────┐${NC}"
     echo -e "  │  $(get_top_processes | sed 's/^/  │  /')"
@@ -211,7 +281,7 @@ render_dashboard() {
 run_monitor() {
     echo $$ > "$PID_FILE"
     trap cleanup EXIT INT TERM
-    
+
     while true; do
         render_dashboard >> "$LOG_FILE" 2>&1
         sleep "$REFRESH_RATE"
@@ -238,8 +308,14 @@ case "${1:-live}" in
         echo "CPU: $(get_cpu_usage)%"
         echo "RAM: $(get_ram_usage)"
         echo "DISK: $(get_disk_usage)"
+        echo "GPU: $(get_gpu_info)"
+        echo "AI:  $(get_ai_status)"
         echo "TOR: $(get_tor_status)"
         echo "FIREWALL: $(get_firewall_status)"
+        echo "DOCKER: $(get_docker_status)"
+        echo "BLUETOOTH: $(get_bluetooth_status)"
+        echo "USBGUARD: $(get_usbguard_status)"
+        echo "AI MODELS: $(get_ai_models_count)"
         ;;
     *)
         echo "Usage: $0 {live|snapshot|log|status}"

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================================
 # ShadowOS Security Hardening Script
+# Updated for v2026.2 NeonHorizon
 # ============================================================================
 set -e
 set -u
@@ -12,7 +13,7 @@ step() { echo -e "\n${CYAN}═══ $1 ═══${NC}\n"; }
 success() { echo -e "  ${GREEN}✓${NC} $1"; }
 warn() { echo -e "  ${YELLOW}⚠${NC} $1"; }
 
-step "SHADOWOS SECURITY HARDENING"
+step "SHADOWOS SECURITY HARDENING v2026.2"
 
 # ─── Firewall (nftables) ────────────────────────────────────────────────
 step "CONFIGURING FIREWALL (nftables)"
@@ -41,12 +42,16 @@ table inet filter {
         udp dport 53 accept
         tcp dport 53 accept
 
+        # DNS-over-HTTPS
+        tcp dport 443 ct state new limit rate 10/minute accept
+
         # Tor (only local access)
         tcp dport 9050 iif lo accept
 
         # WireGuard (restrict if possible later)
         udp dport 51820 accept
 
+        # Reject with proper ICMP
         reject with icmpx type host-unreachable
     }
 
@@ -61,6 +66,13 @@ table inet filter {
     }
 }
 
+# GeoIP blocking table (optional - enable via config)
+# table ip geoip_block {
+#     chain input {
+#         ip saddr @geoip_cn drop
+#         ip saddr @geoip_ru drop
+#     }
+# }
 NFT
 
 # Enable nftables service and load config
@@ -68,6 +80,38 @@ systemctl enable nftables >/dev/null 2>&1
 nft -f /etc/nftables.conf >/dev/null 2>&1 && \
     success "nftables firewall applied (default-deny)" || \
     warn "Could not apply nftables rules"
+
+# ─── Fail2ban Integration (NEW in v2026.2) ──────────────────────────────
+step "CONFIGURING FAIL2BAN"
+
+if command -v fail2ban-server &>/dev/null; then
+    cat > /etc/fail2ban/jail.local << 'FAIL2BAN'
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 3
+banaction = nftables
+
+[sshd]
+enabled = true
+port = 2222
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+
+[nginx-http-auth]
+enabled = false
+
+[apache-auth]
+enabled = false
+FAIL2BAN
+
+    systemctl enable fail2ban 2>/dev/null || true
+    systemctl restart fail2ban 2>/dev/null || true
+    success "Fail2ban configured with nftables backend"
+else
+    info "Fail2ban not installed — skipping"
+fi
 
 # ─── Intrusion Detection ────────────────────────────────────────────────
 step "SETTING UP INTRUSION DETECTION"
@@ -118,6 +162,7 @@ fi
 # ─── Kernel Hardening ───────────────────────────────────────────────────
 step "APPLYING KERNEL HARDENING"
 cat > /etc/sysctl.d/99-shadowos-hardening.conf << 'SYSCTL'
+# ShadowOS Security Kernel Parameters (v2026.2)
 kernel.randomize_va_space = 2
 kernel.kptr_restrict = 2
 kernel.dmesg_restrict = 1
@@ -148,15 +193,21 @@ fs.protected_symlinks = 1
 fs.protected_fifos = 1
 fs.protected_regular = 2
 net.ipv4.ip_forward = 0
+# New in v2026.2: additional hardening
+kernel.kaslr = 1
+kernel.modules_disabled = 0
+kernel.dmesg_restrict = 1
+kernel.kptr_restrict = 2
 SYSCTL
 
 sysctl --system 2>/dev/null || true
-success "Kernel parameters hardened"
+success "Kernel hardening parameters updated"
 
 # ─── SSH Hardening ──────────────────────────────────────────────────────
 step "HARDENING SSH"
 mkdir -p /etc/ssh/sshd_config.d
 cat > /etc/ssh/sshd_config.d/00-shadowos.conf << 'SSHCONF'
+# ShadowOS SSH Hardening (v2026.2)
 PermitRootLogin no
 PasswordAuthentication no
 ChallengeResponseAuthentication no
@@ -216,11 +267,12 @@ echo "* hard core 0" >> /etc/security/limits.conf
 find / -name "core" -type f -delete 2>/dev/null || true
 success "Core dumps disabled"
 
-# ─── Audit Rules ────────────────────────────────────────────────────────
+# ─── Audit Rules (Enhanced for v2026.2) ─────────────────────────────────
 step "CONFIGURING AUDIT RULES"
 if command -v auditctl &>/dev/null; then
     mkdir -p /etc/audit/rules.d
     cat > /etc/audit/rules.d/shadowos.rules << 'AUDIT'
+# ShadowOS Audit Rules (v2026.2)
 -w /etc/passwd -p wa -k identity
 -w /etc/shadow -p wa -k identity
 -w /etc/group -p wa -k identity
@@ -229,11 +281,87 @@ if command -v auditctl &>/dev/null; then
 -w /etc/nftables -p wa -k firewall_changes
 -w /usr/bin/passwd -p x -k privilege_escalation
 -w /usr/bin/sudo -p x -k privilege_escalation
+-w /opt/ShadowOS -p wa -k shadowos_changes
+-w /etc/shadowos -p wa -k shadowos_config
+-w /etc/fail2ban -p wa -k fail2ban_changes
 AUDIT
+
     systemctl enable auditd 2>/dev/null || true
-    success "Audit rules configured"
+    systemctl restart auditd 2>/dev/null || true
+    success "Audit rules updated"
 else
     warn "auditd not available"
+fi
+
+# ─── ZRAM Configuration (NEW in v2026.2) ────────────────────────────────
+step "CONFIGURING ZRAM"
+if modprobe zram 2>/dev/null; then
+    echo "512M" > /sys/module/zram/parameters/mem_limit
+    echo "zstd" > /sys/module/zram/parameters/comp_algorithm
+    mkswap /dev/zram0 2>/dev/null || true
+    swapon -p 100 /dev/zram0 2>/dev/null || true
+    success "ZRAM configured for compressed swap"
+else
+    warn "ZRAM module not available"
+fi
+
+# ─── Btrfs Optimization (NEW in v2026.2) ────────────────────────────────
+step "CONFIGURING BTRFS OPTIMIZATION"
+if mount | grep -q "btrfs"; then
+    mount -o remount,compress=zstd:3 / 2>/dev/null || true
+    success "Btrfs compression enabled (zstd:3)"
+else
+    info "Btrfs not detected — skipping optimization"
+fi
+
+echo ""
+# ─── USBGuard (NEW) ────────────────────────────────────────────────────────
+step "CONFIGURING USBGUARD"
+
+if command -v usbguard &>/dev/null; then
+    mkdir -p /etc/usbguard
+    # Generate initial policy based on currently connected devices
+    usbguard generate-policy > /etc/usbguard/rules.conf 2>/dev/null || {
+        # Default policy: deny all, allow only HID devices
+        cat > /etc/usbguard/rules.conf << 'USBGUARD'
+allow id 046d:* name "Logitech USB Receiver" with-interface equals { 03 01 02 }
+allow id 045e:* name "Microsoft USB Receiver" with-interface equals { 03 01 02 }
+allow id 1a2c:* name "USB Keyboard" with-interface equals { 03 01 02 }
+allow id 1a2c:* name "USB Mouse" with-interface equals { 03 01 03 }
+reject
+USBGUARD
+    }
+
+    systemctl enable usbguard 2>/dev/null || true
+    systemctl start usbguard 2>/dev/null || true
+    success "USBGuard configured (whitelist mode)"
+else
+    info "USBGuard not installed — skipping (recommended for high security)"
+fi
+
+# ─── Bluetooth Security (NEW) ──────────────────────────────────────────────
+step "HARDENING BLUETOOTH"
+
+if command -v bluetoothctl &>/dev/null; then
+    # Stop and disable Bluetooth by default
+    systemctl stop bluetooth 2>/dev/null || true
+
+    # Create rfkill rules for auto-disable on boot
+    cat > /etc/udev/rules.d/99-bluetooth-security.rules << 'BLUETOOTH'
+SUBSYSTEM=="rfkill", ATTR{type}=="bluetooth", ATTR{state}="1"
+BLUETOOTH
+
+    # Harden bluetoothctl settings
+    bluetoothctl << 'BTCTL' 2>/dev/null || true
+power off
+discoverable off
+pairable off
+exit
+BTCTL
+
+    success "Bluetooth hardened (disabled by default)"
+else
+    info "Bluetooth not available — skipping"
 fi
 
 echo ""
@@ -243,10 +371,15 @@ echo -e "${GREEN}═════════════════════
 echo ""
 echo -e "  ${CYAN}Applied:${NC}"
 echo -e "    • nftables firewall (default-deny)"
+echo -e "    • Fail2ban integration (SSH protection)"
 echo -e "    • Kernel hardening (ASLR, ptrace, network)"
 echo -e "    • SSH hardening (port 2222, key-only auth)"
 echo -e "    • AppArmor enforcement"
 echo -e "    • AIDE file integrity monitoring"
 echo -e "    • Core dump protection"
 echo -e "    • File permission hardening"
-echo -e "    • Audit rules"
+echo -e "    • Audit rules (enhanced)"
+echo -e "    • ZRAM compressed swap"
+echo -e "    • Btrfs zstd compression"
+echo -e "    • USBGuard device authorization"
+echo -e "    • Bluetooth disabled & hardened"

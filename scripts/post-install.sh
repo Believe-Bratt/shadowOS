@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================================
 # ShadowOS Post-Install Setup Script
+# Version: 2026.2 NeonHorizon
 # ============================================================================
 set -e
 set -u
@@ -201,7 +202,7 @@ mkdir -p /etc/skel/.local/bin
 cat > /etc/skel/.local/bin/shadowos-prompt.sh << 'PROMPT'
 #!/bin/bash
 echo "╔══════════════════════════════════════════════════╗"
-echo "║  🌑 SHADOWOS - Cyberpunk Terminal Interface     ║"
+echo "║  🌐 SHADOWOS - Cyberpunk Terminal Interface     ║"
 echo "╠══════════════════════════════════════════════════╣"
 echo "║  SYSTEM: $(hostname)                          ║"
 echo "║  USER:   $(whoami)                              ║"
@@ -229,8 +230,9 @@ alias du='dust --color=always 2>/dev/null || du -h'
 alias ps='procs --color=always 2>/dev/null || ps'
 alias top='btm 2>/dev/null || top'
 alias vim='nvim 2>/dev/null || vim'
-alias ai='ollama run llama3.1:8b 2>/dev/null || echo "Ollama not available"'
+alias ai='ollama run llama3.2:8b 2>/dev/null || echo "Ollama not available"'
 alias ai-code='ollama run codellama:7b 2>/dev/null || echo "Ollama not available"'
+alias ai-models='bash /opt/ShadowOS/scripts/ai-models.sh'
 alias sys='btop 2>/dev/null || htop'
 alias neofetch='neofetch --ascii_distro arch --colors 4 5 6 7 8 2>/dev/null || neofetch'
 
@@ -239,14 +241,43 @@ alias tor-off='sudo systemctl stop tor 2>/dev/null && echo "Tor: INACTIVE" || ec
 alias scan='sudo nmap -sS -sV -O -A 2>/dev/null'
 case $PKG in
   apt) alias update='sudo apt update -y && sudo apt upgrade -y 2>/dev/null || echo "Update failed"'
-       alias clean='sudo apt autoremove -y 2>/dev/null; sudo apt autoclean 2>/dev/null' ;;
-  pacman) alias update='sudo pacman -Syu --noconfirm 2>/dev/null || echo "Update failed"'
-          alias clean='sudo pacman -Sc --noconfirm 2>/dev/null' ;;
+        alias clean='sudo apt autoremove -y 2>/dev/null; sudo apt autoclean 2>/dev/null' ;;
+   pacman) alias update='sudo pacman -Syu --noconfirm 2>/dev/null || echo "Update failed"'
+           alias clean='sudo pacman -Sc --noconfirm 2>/dev/null' ;;
 esac
+
+# New in v2026.2 — Enhanced aliases
+alias zsh-update='source ~/.zshrc'
+alias neovim='nvim'
+alias vim='nvim'
+alias lg='lazygit'
+alias eza='eza --icons --group-directories-first'
+alias bat='bat --style=header,grid'
+alias delta='delta --dark'
+alias dust='dust --color always'
+alias procs='procs --color always'
+alias sd='sd --color always'
+alias tldr='tldr --color always'
+alias wttr='curl wttr.in?format=3'
+
+# v2026.2.1 — Power & Security aliases
+alias power-profile='bash /opt/ShadowOS/scripts/power-profile.sh'
+alias power-perf='sudo bash /opt/ShadowOS/scripts/power-profile.sh performance'
+alias power-save='sudo bash /opt/ShadowOS/scripts/power-profile.sh powersave'
+alias power-turbo='sudo bash /opt/ShadowOS/scripts/power-profile.sh turbo'
+alias power-status='bash /opt/ShadowOS/scripts/power-profile.sh status'
+alias shadowos-diagnose='bash /opt/ShadowOS/scripts/diagnostics.sh --report'
+alias shadowos-health='bash /opt/ShadowOS/scripts/diagnostics.sh --quick'
+alias bluetooth-harden='sudo bash /opt/ShadowOS/security-hardening/bluetooth-hardening.sh harden'
+alias bluetooth-disable='sudo bash /opt/ShadowOS/security-hardening/bluetooth-hardening.sh disable'
+alias bluetooth-status='sudo bash /opt/ShadowOS/security-hardening/bluetooth-hardening.sh status'
+alias backup-create='sudo bash /opt/ShadowOS/scripts/backup-encrypted.sh create'
+alias backup-restore='sudo bash /opt/ShadowOS/scripts/backup-encrypted.sh restore'
+alias backup-list='bash /opt/ShadowOS/scripts/backup-encrypted.sh list'
 
 function shadowos-status() {
     echo -e "\033[0;36m╔══════════════════════════════════════════════╗\033[0m"
-    echo -e "\033[0;36m║  🌑 SHADOWOS Status Monitor                  ║\033[0m"
+    echo -e "\033[0;36m║  🌐 SHADOWOS Status Monitor                   ║\033[0m"
     echo -e "\033[0;36m╠══════════════════════════════════════════════╣\033[0m"
     echo -e "\033[0;36m║  CPU: \033[0;32m$(top -bn1 2>/dev/null | grep 'Cpu(s)' | awk '{print $2}' || echo N/A)%\033[0m"
     echo -e "\033[0;36m║  MEM: \033[0;32m$(free -h 2>/dev/null | awk '/^Mem:/{print $3"/"$2}' || echo N/A)\033[0m"
@@ -412,6 +443,85 @@ AISTOP
 chmod +x /etc/skel/.local/bin/ai-stop
 
 success "AI integration configured"
+
+# ─── Power Management ────────────────────────────────────────────────────
+step "CONFIGURING POWER MANAGEMENT"
+
+# Detect if laptop
+if [ -d /sys/class/power_supply/BAT0 ]; then
+    info "Laptop detected — applying power optimizations"
+
+    # Enable TLP for advanced power management if available
+    if command -v tlp &>/dev/null; then
+        systemctl enable tlp 2>/dev/null || true
+        systemctl start tlp 2>/dev/null || true
+        success "TLP power management enabled"
+    else
+        # Manual power optimizations
+        echo 'vm.laptop_mode=5' >> /etc/sysctl.d/99-shadowos-power.conf
+        echo 'vm.dirty_writeback_centisecs=1500' >> /etc/sysctl.d/99-shadowos-power.conf
+        echo 'kernel.nmi_watchdog=0' >> /etc/sysctl.d/99-shadowos-power.conf
+
+        # SATA power management
+        echo 'ACTION=="add|change", SUBSYSTEM=="scsi_host", ATTR{link_power_management_policy}="min_power"' > /etc/udev/rules.d/99-sata-power.rules
+
+        # USB autosuspend
+        echo 'ACTION=="add|change", SUBSYSTEM=="usb", ATTR{power/autosuspend}="2"' > /etc/udev/rules.d/99-usb-autosuspend.rules
+
+        # Intel GPU power saving
+        echo 'options i915 enable_psr=1' > /etc/modprobe.d/i915-psr.conf
+
+        sysctl --system 2>/dev/null || true
+        success "Manual power optimizations applied"
+    fi
+else
+    info "Desktop detected — applying performance profile"
+    echo 'vm.swappiness=10' >> /etc/sysctl.d/99-shadowos-power.conf
+    sysctl --system 2>/dev/null || true
+fi
+
+success "Power management configured"
+
+# ─── Bluetooth Security ─────────────────────────────────────────────────
+step "CONFIGURING BLUETOOTH SECURITY"
+
+if command -v bluetoothctl &>/dev/null; then
+    # Disable Bluetooth by default for security
+    systemctl stop bluetooth 2>/dev/null || true
+
+    # Create rfkill rules
+    cat > /etc/udev/rules.d/99-bluetooth-security.rules << 'BLUETOOTH'
+SUBSYSTEM=="rfkill", ATTR{type}=="bluetooth", ATTR{state}="1"
+BLUETOOTH
+
+    # Harden bluetoothctl
+    bluetoothctl << 'BTCTL' 2>/dev/null || true
+power off
+discoverable off
+pairable off
+exit
+BTCTL
+
+    success "Bluetooth hardened (disabled by default)"
+else
+    info "Bluetooth not available — skipping"
+fi
+
+# ─── USBGuard ────────────────────────────────────────────────────────────
+step "CONFIGURING USBGUARD"
+
+if command -v usbguard &>/dev/null; then
+    # Generate initial policy
+    usbguard generate-policy > /etc/usbguard/rules.conf 2>/dev/null || true
+
+    # Start USBGuard
+    systemctl enable usbguard 2>/dev/null || true
+    systemctl start usbguard 2>/dev/null || true
+
+    success "USBGuard configured"
+else
+    info "USBGuard not installed — skipping (recommended for high security)"
+fi
 
 # ─── Desktop Theme ──────────────────────────────────────────────────────
 step "CONFIGURING DESKTOP THEME"

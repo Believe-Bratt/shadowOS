@@ -20,7 +20,7 @@ Item {
     readonly property color bgPanel: "#1a1a2e"
     readonly property color fgLight: "#f0f0ff"
     readonly property color neonCyan: "#00ffff"
-    readonly property color neonMagenta: "#ff00ff"
+    readonly property color neonPurple: "#c54dff"
     readonly property color neonAmber: "#ffbf00"
     readonly property color neonGreen: "#00ff88"
 
@@ -120,10 +120,10 @@ Item {
             model: 2
             Rectangle {
                 width: 30; height: 3
-                color: root.neonMagenta
+                color: root.neonPurple
                 radius: 2
                 layer.enabled: true
-                layer.effect: DropShadow { color: root.neonMagenta; radius: 8; samples: 16 }
+                layer.effect: DropShadow { color: root.neonPurple; radius: 8; samples: 16 }
             }
         }
     }
@@ -134,10 +134,10 @@ Item {
             model: 2
             Rectangle {
                 width: 3; height: 30
-                color: root.neonMagenta
+                color: root.neonPurple
                 radius: 2
                 layer.enabled: true
-                layer.effect: DropShadow { color: root.neonMagenta; radius: 8; samples: 16 }
+                layer.effect: DropShadow { color: root.neonPurple; radius: 8; samples: 16 }
             }
         }
     }
@@ -164,7 +164,7 @@ Item {
         Label {
             text: "Neon Vanguard Edition"
             font.pixelSize: 16
-            color: root.neonMagenta
+            color: root.neonPurple
             horizontalAlignment: Text.AlignHCenter
             opacity: 0.9
         }
@@ -393,7 +393,7 @@ Item {
         }
         Label {
             font.pixelSize: 12
-            color: root.neonMagenta
+            color: root.neonPurple
             text: Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
         }
         Timer {
@@ -418,3 +418,5 @@ Item {
         }
     }
 } 
+
+

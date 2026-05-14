@@ -10,6 +10,8 @@
 #   make test         — Run test suite
 #   make docs         — Build documentation
 #   make all          — Build everything
+#   make upgrade      — Build upgrade package for existing installations
+#   make ai-models    — Download default AI models
 # ============================================================================
 
 SHELL := /bin/bash
@@ -17,8 +19,8 @@ SHELL := /bin/bash
 
 # ─── Configuration ──────────────────────────────────────────────────────
 PROJECT_NAME    := ShadowOS
-VERSION         := 2026.1
-CODENAME        := BelieveTeckk
+VERSION         := 2026.2
+CODENAME        := NeonHorizon
 BUILD_DIR       := build
 OUTPUT_DIR      := output
 CACHE_DIR       := cache
@@ -57,25 +59,30 @@ VBOXMANAGE     := $(shell command -v VBoxManage 2>/dev/null || echo "")
 DOCKER         := $(shell command -v docker 2>/dev/null || echo "")
 PODMAN         := $(shell command -v podman 2>/dev/null || echo "")
 
-.PHONY: all iso vm container live clean test docs help setup-deps
+.PHONY: all iso vm container live clean test docs help setup-deps upgrade ai-models power-profile diagnostics bluetooth
 
 # ─── Default Target ─────────────────────────────────────────────────────
 help:
 	@echo ""
 	@echo -e "$(BOLD)$(CYAN)╔══════════════════════════════════════════════════╗$(NC)"
-	@echo -e "$(BOLD)$(CYAN)║  $(BOLD)ShadowOS Build System v$(VERSION)$(CYAN)              ║$(NC)"
+	@echo -e "$(BOLD)$(CYAN)║  $(BOLD)ShadowOS Build System v$(VERSION)$(CYAN) ║$(NC)"
 	@echo -e "$(BOLD)$(CYAN)╚══════════════════════════════════════════════════╝$(NC)"
 	@echo ""
 	@echo -e "  $(GREEN)Targets:$(NC)"
-	@echo -e "    $(BOLD)make iso$(NC)       — Build ShadowOS ISO image"
-	@echo -e "    $(BOLD)make live$(NC)      — Build live USB image"
-	@echo -e "    $(BOLD)make vm$(NC)        — Build VM images (VirtualBox + QEMU)"
-	@echo -e "    $(BOLD)make container$(NC) — Build Docker/Podman container"
-	@echo -e "    $(BOLD)make clean$(NC)     — Clean build artifacts"
-	@echo -e "    $(BOLD)make test$(NC)      — Run test suite"
-	@echo -e "    $(BOLD)make docs$(NC)      — Build documentation"
-	@echo -e "    $(BOLD)make all$(NC)       — Build everything"
-	@echo -e "    $(BOLD)make setup-deps$(NC) — Install build dependencies"
+	@echo -e "    $(BOLD)make iso$(NC)          — Build ShadowOS ISO image"
+	@echo -e "    $(BOLD)make live$(NC)         — Build live USB image"
+	@echo -e "    $(BOLD)make vm$(NC)           — Build VM images (VirtualBox + QEMU)"
+	@echo -e "    $(BOLD)make container$(NC)    — Build Docker/Podman container"
+	@echo -e "    $(BOLD)make clean$(NC)        — Clean build artifacts"
+	@echo -e "    $(BOLD)make test$(NC)         — Run test suite"
+	@echo -e "    $(BOLD)make docs$(NC)         — Build documentation"
+	@echo -e "    $(BOLD)make all$(NC)          — Build everything"
+	@echo -e "    $(BOLD)make setup-deps$(NC)   — Install build dependencies"
+	@echo -e "    $(BOLD)make upgrade$(NC)      — Build upgrade package"
+	@echo -e "    $(BOLD)make ai-models$(NC)    — Download default AI models"
+	@echo -e "    $(BOLD)make power-profile$(NC) — Set balanced power profile"
+	@echo -e "    $(BOLD)make diagnostics$(NC)  — Run system diagnostics"
+	@echo -e "    $(BOLD)make bluetooth$(NC)    — Harden Bluetooth security"
 	@echo ""
 	@echo -e "  $(YELLOW)Detected:$(NC)"
 	@echo -e "    Package manager: $(PKG_MANAGER)"
@@ -198,3 +205,47 @@ all: iso vm container
 	@echo -e "    VMs:     $(OUTPUT_DIR)/vms/"
 	@echo -e "    Container: $(OUTPUT_DIR)/container/"
 	@echo ""
+
+# ─── Upgrade Package ───────────────────────────────────────────────────────
+upgrade:
+	@echo -e "$(CYAN)Building upgrade package...$(NC)"
+	@mkdir -p $(OUTPUT_DIR)/upgrade
+	@cp scripts/upgrade.sh $(OUTPUT_DIR)/upgrade/
+	@cp scripts/ai-models.sh $(OUTPUT_DIR)/upgrade/
+	@cp config.sh $(OUTPUT_DIR)/upgrade/
+	@echo "# ShadowOS Upgrade Package v$(VERSION)" > $(OUTPUT_DIR)/upgrade/README.md
+	@echo "" >> $(OUTPUT_DIR)/upgrade/README.md
+	@echo "Run \`sudo bash upgrade.sh\` to upgrade from v2026.1 to v$(VERSION)" >> $(OUTPUT_DIR)/upgrade/README.md
+	@chmod +x $(OUTPUT_DIR)/upgrade/*.sh
+	@echo -e "$(GREEN)✓ Upgrade package ready in $(OUTPUT_DIR)/upgrade/$(NC)"
+
+# ─── AI Models Download ─────────────────────────────────────────────────────
+ai-models:
+	@echo -e "$(CYAN)Downloading default AI models...$(NC)"
+	@which ollama >/dev/null 2>&1 || (echo "Installing Ollama..." && curl -fsSL https://ollama.com/install.sh | sh)
+	@echo "Pulling llama3.2:8b..." && ollama pull llama3.2:8b 2>&1 | tail -2
+	@echo "Pulling gemma2:9b..." && ollama pull gemma2:9b 2>&1 | tail -2
+	@echo "Pulling mixtral:8x7b..." && ollama pull mixtral:8x7b 2>&1 | tail -2
+	@echo "Pulling codellama:7b..." && ollama pull codellama:7b 2>&1 | tail -2
+	@echo "Pulling phi3:mini..." && ollama pull phi3:mini 2>&1 | tail -2
+	@echo "Pulling llava:7b..." && ollama pull llava:7b 2>&1 | tail -2
+	@echo "Pulling whisper:base..." && ollama pull whisper:base 2>&1 | tail -2
+	@echo -e "$(GREEN)✓ Default AI models downloaded$(NC)"
+
+# ─── Power Profile ──────────────────────────────────────────────────────────
+power-profile:
+	@echo -e "$(CYAN)Setting balanced power profile...$(NC)"
+	@bash scripts/power-profile.sh balanced
+	@echo -e "$(GREEN)✓ Power profile set to balanced$(NC)"
+
+# ─── System Diagnostics ─────────────────────────────────────────────────────
+diagnostics:
+	@echo -e "$(CYAN)Running system diagnostics...$(NC)"
+	@bash scripts/diagnostics.sh --report
+	@echo -e "$(GREEN)✓ Diagnostics complete — report saved to /tmp/shadowos-diagnostics-*.txt$(NC)"
+
+# ─── Bluetooth Hardening ─────────────────────────────────────────────────────
+bluetooth:
+	@echo -e "$(CYAN)Hardening Bluetooth...$(NC)"
+	@bash security-hardening/bluetooth-hardening.sh harden
+	@echo -e "$(GREEN)✓ Bluetooth hardened$(NC)"

@@ -33,9 +33,9 @@ mkdir -p "$BUILD_DIR" "$OUTPUT_DIR" "$CACHE_DIR"
 # ─── STAGE 1: Minimal Base ISO ───────────────────────────────────────────
 build_minimal_iso() {
     step "BUILDING SHADOWOS MINIMAL BASE ISO (STAGE 1)"
-    log "Version: 2026.1 | Codename: NeonVanguard"
-    log "This creates a minimal ISO with core system only."
-    log "Additional tools can be installed post-installation.\n"
+     log "Version: 2026.2 | Codename: NeonHorizon"
+     log "This creates a minimal ISO with core system only."
+     log "Additional tools can be installed post-installation.\n"
     
      # Check dependencies
      for cmd in debootstrap lb xorriso grub-mkrescue tar gzip bzip2 unzip cpio xz; do
@@ -273,9 +273,9 @@ GRUB
     # Check for output
     if [ -f "$LIVE_DIR/binary.hybrid.iso" ]; then
         mkdir -p "$OUTPUT_DIR/iso"
-        cp "$LIVE_DIR/binary.hybrid.iso" "$OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64.iso"
-        success "ISO created: $OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64.iso"
-        ls -lh "$OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64.iso"
+        cp "$LIVE_DIR/binary.hybrid.iso" "$OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64.iso"
+        success "ISO created: $OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64.iso"
+        ls -lh "$OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64.iso"
     else
         error "ISO build failed. Check $BUILD_DIR/build.log"
         exit 1
@@ -313,32 +313,32 @@ case "${1:-help}" in
         ;;
     live)
         step "BUILDING LIVE USB IMAGE"
-        if [ -f "$OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64.iso" ]; then
-            cp "$OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64.iso" "$OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64-live.iso"
-            success "Live USB image: $OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64-live.iso"
-        else
-            error "Build ISO first (make iso)"
-            exit 1
-        fi
+        if [ -f "$OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64.iso" ]; then
+             cp "$OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64.iso" "$OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64-live.iso"
+             success "Live USB image: $OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64-live.iso"
+         else
+             error "Build ISO first (make iso)"
+             exit 1
+         fi
         ;;
     vm)
         step "BUILDING VM IMAGES"
         mkdir -p "$OUTPUT_DIR/vms"
         
         if command -v VBoxManage &>/dev/null; then
-            log "Creating VirtualBox image..."
-            VBoxManage convertfromraw "$OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64.iso" \
-                "$OUTPUT_DIR/vms/ShadowOS-2026.1-x86_64.vdi" --format VDI 2>&1 || true
-            success "VirtualBox image created"
-        fi
-        
-        if command -v qemu-img &>/dev/null; then
-            log "Creating QEMU image..."
-            qemu-img convert -f raw -O qcow2 \
-                "$OUTPUT_DIR/iso/ShadowOS-2026.1-x86_64.iso" \
-                "$OUTPUT_DIR/vms/ShadowOS-2026.1-x86_64.qcow2" 2>&1 || true
-            success "QEMU image created"
-        fi
+             log "Creating VirtualBox image..."
+             VBoxManage convertfromraw "$OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64.iso" \
+                 "$OUTPUT_DIR/vms/ShadowOS-2026.2-x86_64.vdi" --format VDI 2>&1 || true
+             success "VirtualBox image created"
+         fi
+
+         if command -v qemu-img &>/dev/null; then
+             log "Creating QEMU image..."
+             qemu-img convert -f raw -O qcow2 \
+                 "$OUTPUT_DIR/iso/ShadowOS-2026.2-x86_64.iso" \
+                 "$OUTPUT_DIR/vms/ShadowOS-2026.2-x86_64.qcow2" 2>&1 || true
+             success "QEMU image created"
+         fi
         ;;
     container)
         step "BUILDING CONTAINER IMAGE"
@@ -364,11 +364,11 @@ CMD ["/bin/zsh"]
 DOCKERFILE
 
         if command -v docker &>/dev/null; then
-            docker build -t shadowos:2026.1 -f "$BUILD_DIR/Dockerfile" . 2>&1 | tee "$BUILD_DIR/container.log"
-            success "Docker image: shadowos:2026.1"
-        elif command -v podman &>/dev/null; then
-            podman build -t shadowos:2026.1 -f "$BUILD_DIR/Dockerfile" . 2>&1 | tee "$BUILD_DIR/container.log"
-            success "Podman image: shadowos:2026.1"
+            docker build -t shadowos:2026.2 -f "$BUILD_DIR/Dockerfile" . 2>&1 | tee "$BUILD_DIR/container.log"
+             success "Docker image: shadowos:2026.2"
+         elif command -v podman &>/dev/null; then
+             podman build -t shadowos:2026.2 -f "$BUILD_DIR/Dockerfile" . 2>&1 | tee "$BUILD_DIR/container.log"
+             success "Podman image: shadowos:2026.2"
         else
             error "Neither Docker nor Podman available"
             exit 1
@@ -429,3 +429,4 @@ This approach ensures:
 "
         ;;
 esac
+

@@ -9,13 +9,20 @@
 @define-color bg_dark #0a0a0f;
 @define-color bg_panel #1a1a2e;
 @define-color bg_secondary #2a2a3e;
+@define-color bg_glass #1a1a2e;
 @define-color fg_light #f0f0ff;
-@define-color fg_dim #666677;
+@define-color fg_dim #8888aa;
 @define-color neon_cyan #00ffff;
+@define-color neon_cyan_dim #00cccc;
 @define-color neon_magenta #ff00ff;
+@define-color neon_magenta_dim #cc00cc;
+@define-color neon_purple #c54dff;
+@define-color neon_purple_dim #9933cc;
 @define-color neon_amber #ffbf00;
 @define-color neon_green #00ff88;
 @define-color neon_red #ff0055;
+@define-color accent_primary #00d4ff;
+@define-color accent_secondary #c54dff;
 
 /* ─── Global Settings ─────────────────────────────────────────────────────── */
 * {
@@ -28,8 +35,8 @@ window, .window {
     background-color: @bg_dark;
     color: @fg_light;
     border: 2px solid @neon_cyan;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 30px @neon_cyan_dim, inset 0 0 20px rgba(0, 255, 255, 0.05);
 }
 
 /* ─── Header Bar ──────────────────────────────────────────────────────────── */

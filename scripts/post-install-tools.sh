@@ -160,29 +160,53 @@ install_docker() {
 
 # ─── Install Additional Terminal Tools ─────────────────────────────────────
 install_terminal_tools() {
-    step "INSTALLING TERMINAL TOOLS"
-    
-    apt-get install -y --no-install-recommends \
-        fzf \
-        ripgrep \
-        fd-find \
-        bat \
-        exa \
-        eza \
-        dust \
-        procs \
-        sd \
-        tldr \
-        broot \
-        lazygit \
-        delta \
-        ranger \
-        ncdu \
-        tmuxinator \
-        2>/dev/null || warn "Some terminal tools may have failed"
-    
-    success "Terminal tools installed"
-}
+     step "INSTALLING TERMINAL TOOLS"
+
+     apt-get install -y --no-install-recommends \
+         fzf \
+         ripgrep \
+         fd-find \
+         bat \
+         exa \
+         eza \
+         dust \
+         procs \
+         sd \
+         tldr \
+         broot \
+         lazygit \
+         delta \
+         ranger \
+         ncdu \
+         tmuxinator \
+         zoxide \
+         mcfly \
+         atuin \
+         bottom \
+         bandwhich \
+         duf \
+         2>/dev/null || warn "Some terminal tools may have failed"
+
+     success "Terminal tools installed"
+ }
+
+# ─── Install Security & Privacy Tools ──────────────────────────────────────
+install_security_tools() {
+     step "INSTALLING SECURITY & PRIVACY TOOLS"
+
+     apt-get install -y --no-install-recommends \
+         usbguard \
+         fail2ban \
+         aide \
+         rkhunter \
+         chkrootkit \
+         lynis \
+         firejail \
+         bubblewrap \
+         2>/dev/null || warn "Some security tools may have failed"
+
+     success "Security tools installed"
+ }
 
 # ─── Install Multimedia Tools ───────────────────────────────────────────────
 install_multimedia() {
@@ -211,8 +235,9 @@ show_menu() {
     log "  5) Office suite only"
     log "  6) Docker only"
     log "  7) Terminal tools only"
-    log "  8) Custom selection"
-    log "  9) Exit\n"
+     log "  8) Security & Privacy tools"
+     log "  9) Custom selection"
+     log "  10) Exit\n"
     
     read -p "Choice [1-9]: " choice
     
@@ -234,9 +259,10 @@ show_menu() {
         5) install_office_suite ;;
         6) install_docker ;;
         7) install_powerlevel10k; install_terminal_tools ;;
-        8) custom_install ;;
-        9) exit 0 ;;
-        *) error "Invalid choice"; exit 1 ;;
+         8) install_security_tools ;;
+         9) custom_install ;;
+         10) exit 0 ;;
+         *) error "Invalid choice"; exit 1 ;;
     esac
 }
 
@@ -252,16 +278,18 @@ custom_install() {
     read -p "  Docker? [y/N]: " docker
     read -p "  Terminal tools? [y/N]: " terminal
     read -p "  Multimedia? [y/N]: " media
-    
-    [ "$p10k" = "y" ] && install_powerlevel10k
-    [ "$ollama" = "y" ] && install_ollama
-    [ "$ai" = "y" ] && install_ai_tools
-    [ "$pentest" = "y" ] && install_pentest_tools
-    [ "$graphics" = "y" ] && install_graphics_tools
-    [ "$office" = "y" ] && install_office_suite
-    [ "$docker" = "y" ] && install_docker
-    [ "$terminal" = "y" ] && install_terminal_tools
-    [ "$media" = "y" ] && install_multimedia
+     read -p "  Security & Privacy tools? [y/N]: " security
+
+     [ "$p10k" = "y" ] && install_powerlevel10k
+     [ "$ollama" = "y" ] && install_ollama
+     [ "$ai" = "y" ] && install_ai_tools
+     [ "$pentest" = "y" ] && install_pentest_tools
+     [ "$graphics" = "y" ] && install_graphics_tools
+     [ "$office" = "y" ] && install_office_suite
+     [ "$docker" = "y" ] && install_docker
+     [ "$terminal" = "y" ] && install_terminal_tools
+     [ "$media" = "y" ] && install_multimedia
+     [ "$security" = "y" ] && install_security_tools
 }
 
 # ─── Run ─────────────────────────────────────────────────────────────────────
@@ -281,6 +309,7 @@ main() {
         install_office_suite
         install_docker
         install_terminal_tools
+        install_security_tools
         install_multimedia
     else
         show_menu

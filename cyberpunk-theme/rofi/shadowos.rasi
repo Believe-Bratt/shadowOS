@@ -21,15 +21,15 @@ configuration {
 // ─── Global Styles ───────────────────────────────────────────────────────────
 * {
     bg: #0a0a0f;
-    bg-alt: #1a1a2e;
+    bg-alt: rgba(26, 26, 46, 0.85);
     fg: #f0f0ff;
-    fg-dim: #666677;
+    fg-dim: #8888aa;
     accent: #00ffff;
-    accent2: #ff00ff;
+    accent2: #c54dff;
     highlight: #ffbf00;
     border: 2px solid @accent;
-    radius: 8px;
-    padding: 8px;
+    radius: 10px;
+    padding: 10px;
 }
 
 // ─── Main Window ─────────────────────────────────────────────────────────────
@@ -108,11 +108,11 @@ element alternate {
 }
 
 element selected {
-    background-color: @accent;
+    background-color: @accent2;
     text-color: @bg;
     font: "JetBrains Mono 12 bold";
-    border: 1px solid @accent2;
-    box-shadow: 0 0 10px @accent;
+    border: 1px solid @accent;
+    box-shadow: 0 0 15px @accent2;
 }
 
 element urgent {
